@@ -43,6 +43,7 @@ export function AskQuestion({
   const areaRef = useRef<HTMLDivElement>(null);
   const noRef = useRef<HTMLButtonElement>(null);
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastDodge = useRef(0);
 
   useEffect(() => () => {
     if (moodTimer.current) clearTimeout(moodTimer.current);
@@ -50,6 +51,10 @@ export function AskQuestion({
 
   const dodge = useCallback(() => {
     if (attempts >= MAX_DODGES) return;
+    // A single tap fires pointerenter and click back to back; count it once.
+    const now = Date.now();
+    if (now - lastDodge.current < 350) return;
+    lastDodge.current = now;
     const area = areaRef.current?.getBoundingClientRect();
     const btn = noRef.current?.getBoundingClientRect();
     if (area && btn) {
@@ -119,7 +124,6 @@ export function AskQuestion({
           type="button"
           onPointerEnter={surrendered ? undefined : dodge}
           onClick={surrendered ? handleYes : dodge}
-          onTouchStart={surrendered ? undefined : dodge}
           animate={{ x: offset.x, y: offset.y, scale: noScale }}
           transition={{ type: "spring", stiffness: 500, damping: 26 }}
           className={cn(
