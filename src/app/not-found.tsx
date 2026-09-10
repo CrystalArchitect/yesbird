@@ -13,7 +13,7 @@ export default function NotFound() {
         <p className="mt-2 text-muted-foreground">
           The link might be missing a character, or the invitation was never sealed. The bunny is very sorry.
         </p>
-        <Button className="mt-6 rounded-full" render={<Link href="/" />}>
+        <Button className="mt-6 rounded-full" nativeButton={false} render={<Link href="/" />}>
           Back home
         </Button>
       </main>

@@ -130,7 +130,7 @@ export function NestView({ initial, manageKey, fresh }: { initial: Invite; manag
             </code>
             <div className="flex flex-wrap gap-2">
               <CopyButton text={shareUrl} />
-              <Button variant="outline" className="rounded-full" render={<Link href={`/to/${invite.id}`} target="_blank" />}>
+              <Button variant="outline" className="rounded-full" nativeButton={false} render={<Link href={`/to/${invite.id}`} target="_blank" />}>
                 Preview
               </Button>
             </div>

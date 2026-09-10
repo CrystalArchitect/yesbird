@@ -5,9 +5,10 @@ import { useMemo } from "react";
 const COLORS = ["#ffc7d6", "#ffd9c2", "#e6d6ff", "#ffe3ea", "#fff0c9"];
 
 // Deterministic "randomness" keeps render pure and server/client markup identical.
+// Rounded to two decimals so React's serialized styles match byte for byte on hydration.
 function noise(i: number, salt: number) {
   const x = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
-  return x - Math.floor(x);
+  return Math.round((x - Math.floor(x)) * 100) / 100;
 }
 
 export function Petals({ count = 18, className = "" }: { count?: number; className?: string }) {
@@ -15,13 +16,13 @@ export function Petals({ count = 18, className = "" }: { count?: number; classNa
     () =>
       Array.from({ length: count }, (_, i) => ({
         id: i,
-        left: noise(i, 1) * 100,
-        delay: -noise(i, 2) * 16,
-        duration: 12 + noise(i, 3) * 10,
-        size: 10 + noise(i, 4) * 10,
-        drift: (noise(i, 5) - 0.5) * 160,
+        left: Math.round(noise(i, 1) * 100),
+        delay: -Math.round(noise(i, 2) * 16),
+        duration: 12 + Math.round(noise(i, 3) * 10),
+        size: 10 + Math.round(noise(i, 4) * 10),
+        drift: Math.round((noise(i, 5) - 0.5) * 160),
         color: COLORS[i % COLORS.length],
-        rotate: noise(i, 6) * 360,
+        rotate: Math.round(noise(i, 6) * 360),
       })),
     [count],
   );

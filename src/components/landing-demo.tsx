@@ -50,7 +50,7 @@ export function LandingDemo() {
               >
                 Try again
               </Button>
-              <Button className="rounded-full" render={<Link href="/create" />}>
+              <Button className="rounded-full" nativeButton={false} render={<Link href="/create" />}>
                 Make mine
               </Button>
             </div>

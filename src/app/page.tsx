@@ -39,7 +39,7 @@ export default function HomePage() {
       <Petals />
       <SiteHeader
         right={
-          <Button className="rounded-full" render={<Link href="/create" />}>
+          <Button className="rounded-full" nativeButton={false} render={<Link href="/create" />}>
             Make an invitation
           </Button>
         }
@@ -60,7 +60,7 @@ export default function HomePage() {
               They pick a time, tell you what they love, and leave their number. The No button? Decorative.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Button size="lg" className="h-12 rounded-full px-7 text-base" render={<Link href="/create" />}>
+              <Button size="lg" className="h-12 rounded-full px-7 text-base" nativeButton={false} render={<Link href="/create" />}>
                 Make an invitation
               </Button>
               <span className="text-sm text-muted-foreground">Free · no account · takes 2 minutes</span>
@@ -120,7 +120,7 @@ export default function HomePage() {
               <p className="mt-3 text-muted-foreground">
                 After the yes, they answer four cute questions. You get it all on a private page only you can see.
               </p>
-              <Button className="mt-6 rounded-full" render={<Link href="/create" />}>
+              <Button className="mt-6 rounded-full" nativeButton={false} render={<Link href="/create" />}>
                 Start yours
               </Button>
             </div>

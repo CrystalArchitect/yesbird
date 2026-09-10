@@ -35,8 +35,8 @@ function Section({
   return (
     <motion.section
       initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.08 * step, duration: 0.35, ease: "easeOut" }}
       className="card-cute p-6 sm:p-8"
     >
       <div className="mb-5 flex items-start gap-3">

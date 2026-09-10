@@ -25,7 +25,7 @@ export default async function NestPage({ params, searchParams }: PageProps<"/nes
       <Petals count={10} />
       <SiteHeader
         right={
-          <Button variant="outline" className="rounded-full" render={<Link href="/create" />}>
+          <Button variant="outline" className="rounded-full" nativeButton={false} render={<Link href="/create" />}>
             Ask someone else
           </Button>
         }
