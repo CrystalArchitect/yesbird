@@ -46,12 +46,12 @@ export default function HomePage() {
       />
 
       <main className="mx-auto w-full max-w-5xl px-5 pb-24">
-        <section className="grid items-center gap-10 py-10 md:grid-cols-[1.1fr_0.9fr] md:py-16">
+        <section className="grid items-center gap-10 py-10 *:min-w-0 md:grid-cols-[1.1fr_0.9fr] md:py-16">
           <div className="space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1.5 text-sm font-semibold text-primary ring-1 ring-primary/15">
               <span aria-hidden>🐦</span> For hopeless romantics with shaky hands
             </span>
-            <h1 className="font-display text-5xl font-semibold leading-[1.05] text-balance sm:text-6xl">
+            <h1 className="font-display text-4xl font-semibold leading-[1.05] text-balance sm:text-5xl lg:text-6xl">
               Ask them out. <br />
               <span className="text-primary">Let them say yes.</span>
             </h1>
@@ -67,16 +67,16 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative mx-auto flex h-72 w-full max-w-sm items-end justify-center sm:h-80">
+          <div className="relative mx-auto flex h-60 w-full max-w-sm items-end justify-center overflow-hidden sm:h-80">
             <div className="absolute inset-x-8 bottom-6 h-40 rounded-[3rem] bg-gradient-to-t from-blush to-transparent blur-2xl" />
-            <div className="relative -mr-8 mb-2 animate-float [animation-delay:-1s]">
-              <Mascot kind="bear" mood="shy" className="h-36 w-36 sm:h-44 sm:w-44" />
+            <div className="relative -mr-6 mb-2 animate-float [animation-delay:-1s] sm:-mr-8">
+              <Mascot kind="bear" mood="shy" className="h-28 w-28 sm:h-44 sm:w-44" />
             </div>
             <div className="relative z-10 animate-float">
-              <Mascot kind="bunny" mood="love" className="h-44 w-44 sm:h-56 sm:w-56" />
+              <Mascot kind="bunny" mood="love" className="h-36 w-36 sm:h-56 sm:w-56" />
             </div>
-            <div className="relative -ml-8 mb-4 animate-float [animation-delay:-2s]">
-              <Mascot kind="lovebirds" mood="happy" className="h-36 w-36 sm:h-44 sm:w-44" />
+            <div className="relative -ml-6 mb-4 animate-float [animation-delay:-2s] sm:-ml-8">
+              <Mascot kind="lovebirds" mood="happy" className="h-28 w-28 sm:h-44 sm:w-44" />
             </div>
           </div>
         </section>
