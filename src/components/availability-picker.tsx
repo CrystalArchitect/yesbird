@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo } from "react";
 import { Chip } from "@/components/chip";
-import { formatDay, parseISODate, upcomingDays } from "@/lib/dates";
+import { LOCALE, formatDay, parseISODate, upcomingDays } from "@/lib/dates";
 import { gentle, springy } from "@/lib/motion";
 import { TIMES, type TimeId } from "@/lib/options";
 import type { Slot } from "@/lib/schemas";
@@ -84,10 +84,10 @@ export function AvailabilityPicker({
                   )}
                 >
                   <span className="uppercase opacity-80">
-                    {d.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 3)}
+                    {d.toLocaleDateString(LOCALE, { weekday: "short" }).slice(0, 3)}
                   </span>
                   <span className="font-display text-lg leading-tight">{d.getDate()}</span>
-                  <span className="opacity-70">{d.toLocaleDateString(undefined, { month: "short" })}</span>
+                  <span className="opacity-70">{d.toLocaleDateString(LOCALE, { month: "short" })}</span>
                 </motion.button>
               );
             })}

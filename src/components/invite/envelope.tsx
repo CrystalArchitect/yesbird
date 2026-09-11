@@ -70,20 +70,23 @@ export function Envelope({
 
         <div className="absolute inset-0 z-10 rounded-[1.6rem] bg-[radial-gradient(120%_120%_at_20%_0%,#ffe1e9_0%,#ffcfdc_60%,#ffc3d3_100%)] shadow-[0_34px_70px_-30px_oklch(0.7_0.18_5/0.55),0_2px_0_0_#fff_inset] ring-1 ring-primary/15" />
 
-        <motion.div
-          className="absolute inset-x-6 top-5 z-20 rounded-2xl bg-white px-6 pb-5 pt-6 text-left shadow-[0_18px_40px_-24px_oklch(0.4_0.1_350/0.5)] ring-1 ring-primary/10"
-          initial={{ y: 88 }}
-          animate={opening ? { y: -128 } : { y: 88 }}
-          transition={{ delay: opening ? 0.6 : 0, duration: 1, ease: EASE_SOFT }}
-        >
-          <p className="font-hand text-2xl leading-none text-foreground">Dear {recipientName},</p>
-          <div className="mt-3 space-y-2">
-            <div className="h-2 w-full rounded-full bg-blush/80" />
-            <div className="h-2 w-11/12 rounded-full bg-blush/80" />
-            <div className="h-2 w-2/3 rounded-full bg-blush/80" />
-          </div>
-          <p className="mt-3 text-right font-hand text-xl text-primary">♡ {senderName}</p>
-        </motion.div>
+        {/* Clipped at the envelope's bottom edge only, so the letter can rise above it but never hang below. */}
+        <div className="pointer-events-none absolute inset-x-0 -top-[400px] bottom-0 z-20 overflow-hidden rounded-b-[1.6rem]">
+          <motion.div
+            className="absolute inset-x-6 top-[420px] rounded-2xl bg-white px-6 pb-5 pt-6 text-left shadow-[0_18px_40px_-24px_oklch(0.4_0.1_350/0.5)] ring-1 ring-primary/10"
+            initial={{ y: 88 }}
+            animate={opening ? { y: -128 } : { y: 88 }}
+            transition={{ delay: opening ? 0.6 : 0, duration: 1, ease: EASE_SOFT }}
+          >
+            <p className="font-hand text-2xl leading-none text-foreground">Dear {recipientName},</p>
+            <div className="mt-3 space-y-2">
+              <div className="h-2 w-full rounded-full bg-blush/80" />
+              <div className="h-2 w-11/12 rounded-full bg-blush/80" />
+              <div className="h-2 w-2/3 rounded-full bg-blush/80" />
+            </div>
+            <p className="mt-3 text-right font-hand text-xl text-primary">♡ {senderName}</p>
+          </motion.div>
+        </div>
 
         <div className="absolute inset-x-0 bottom-0 z-30 h-[64%] overflow-hidden rounded-b-[1.6rem]">
           <div className="absolute -left-[28%] bottom-0 h-[130%] w-[78%] origin-bottom -skew-x-[32deg] bg-[#ffd0dc] shadow-[8px_0_18px_-10px_rgba(120,40,70,0.25)]" />

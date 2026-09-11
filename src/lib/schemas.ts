@@ -33,7 +33,8 @@ export const createInviteSchema = z.object({
 export type CreateInviteInput = z.infer<typeof createInviteSchema>;
 
 export const responseSchema = z.object({
-  chosenSlots: z.array(slotSchema).min(1, "Pick at least one time that works"),
+  // Empty only when every offered day had already passed by the time they answered.
+  chosenSlots: z.array(slotSchema).max(21),
   foods: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   placeIdeas: z.string().trim().max(300).default(""),
   interests: z.array(z.string().trim().min(1).max(40)).max(12).default([]),

@@ -52,9 +52,12 @@ function buildPayload(invite: Invite, r: InviteResponse, baseUrl: string): Notif
   const nestUrl = invite.manageKey ? `${baseUrl.replace(/\/$/, "")}/nest/${invite.manageKey}` : null;
   const contact = CONTACT_METHODS.find((c) => c.id === r.contactMethod)?.label ?? r.contactMethod;
   const vibe = VIBES.find((v) => v.id === invite.vibe);
-  const times = r.chosenSlots.map(
-    (s) => `${formatDayLong(s.date)} — ${s.times.map((t) => `${TIME_BY_ID[t].label} (${TIME_BY_ID[t].hint})`).join(", ")}`,
-  );
+  const times = r.chosenSlots.length
+    ? r.chosenSlots.map(
+        (s) =>
+          `${formatDayLong(s.date)} — ${s.times.map((t) => `${TIME_BY_ID[t].label} (${TIME_BY_ID[t].hint})`).join(", ")}`,
+      )
+    : ["The days you offered had already passed when they opened it. They still said yes — pick a new one together."];
   const attempts =
     r.noAttempts === 0
       ? "Didn't even touch the No button."

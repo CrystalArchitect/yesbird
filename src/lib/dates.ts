@@ -21,8 +21,12 @@ export function upcomingDays(count: number, startOffset = 1): string[] {
   return out;
 }
 
+// The UI copy is English, so dates are too. A fixed locale also keeps the server-rendered
+// HTML identical to what the visitor's browser would render, whatever language it is set to.
+export const LOCALE = "en-US";
+
 export function formatDay(iso: string, opts: Intl.DateTimeFormatOptions = {}): string {
-  return parseISODate(iso).toLocaleDateString(undefined, {
+  return parseISODate(iso).toLocaleDateString(LOCALE, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -31,7 +35,7 @@ export function formatDay(iso: string, opts: Intl.DateTimeFormatOptions = {}): s
 }
 
 export function formatDayLong(iso: string): string {
-  return parseISODate(iso).toLocaleDateString(undefined, {
+  return parseISODate(iso).toLocaleDateString(LOCALE, {
     weekday: "long",
     month: "long",
     day: "numeric",

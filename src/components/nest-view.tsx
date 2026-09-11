@@ -7,17 +7,12 @@ import { Mascot } from "@/components/mascots";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { celebrate } from "@/lib/confetti";
-import { formatDay, formatDayLong } from "@/lib/dates";
+import { LOCALE, formatDay, formatDayLong } from "@/lib/dates";
 import { CONTACT_METHODS, TIME_BY_ID, VIBES } from "@/lib/options";
 import type { Invite } from "@/lib/schemas";
 import { useIsClient } from "@/lib/use-is-client";
 
 const POLL_MS = 8000;
-
-function useShareUrl(id: string) {
-  const isClient = useIsClient();
-  return isClient ? `${window.location.origin}/to/${id}` : `/to/${id}`;
-}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -44,7 +39,8 @@ export function NestView({ initial, manageKey, fresh }: { initial: Invite; manag
   const [invite, setInvite] = useState(initial);
   const [showFresh, setShowFresh] = useState(fresh);
   const hadResponse = useRef(Boolean(initial.response));
-  const shareUrl = useShareUrl(invite.id);
+  const isClient = useIsClient();
+  const shareUrl = isClient ? `${window.location.origin}/to/${invite.id}` : `/to/${invite.id}`;
 
   useEffect(() => {
     if (invite.response) return;
@@ -130,7 +126,12 @@ export function NestView({ initial, manageKey, fresh }: { initial: Invite; manag
             </code>
             <div className="flex flex-wrap gap-2">
               <CopyButton text={shareUrl} />
-              <Button variant="outline" className="rounded-full" nativeButton={false} render={<Link href={`/to/${invite.id}`} target="_blank" />}>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                nativeButton={false}
+                render={<Link href={`/to/${invite.id}?preview=1`} target="_blank" />}
+              >
                 Preview
               </Button>
             </div>
@@ -202,23 +203,34 @@ export function NestView({ initial, manageKey, fresh }: { initial: Invite; manag
                 {r.noAttempts === 0
                   ? "Didn't even touch the No button."
                   : `After ${r.noAttempts} attempt${r.noAttempts === 1 ? "" : "s"} at No. Cute.`}
-                {" · "}
-                {new Date(r.respondedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                {isClient && (
+                  <>
+                    {" · "}
+                    {new Date(r.respondedAt).toLocaleString(LOCALE, { dateStyle: "medium", timeStyle: "short" })}
+                  </>
+                )}
               </p>
             </div>
 
             <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
               <Detail title="Times that work" emoji="🗓️" className="sm:col-span-2">
-                <ul className="space-y-1.5">
-                  {r.chosenSlots.map((s) => (
-                    <li key={s.date} className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="font-display font-semibold">{formatDayLong(s.date)}</span>
-                      <span className="text-muted-foreground">
-                        {s.times.map((t) => `${TIME_BY_ID[t].label} (${TIME_BY_ID[t].hint})`).join(" · ")}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {r.chosenSlots.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    The days you offered had already passed when {invite.recipientName} opened this. They still said
+                    yes, so reach out and pick a new one together.
+                  </p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {r.chosenSlots.map((s) => (
+                      <li key={s.date} className="flex flex-wrap items-baseline gap-x-2">
+                        <span className="font-display font-semibold">{formatDayLong(s.date)}</span>
+                        <span className="text-muted-foreground">
+                          {s.times.map((t) => `${TIME_BY_ID[t].label} (${TIME_BY_ID[t].hint})`).join(" · ")}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </Detail>
 
               <Detail title="Reach them" emoji="📱">

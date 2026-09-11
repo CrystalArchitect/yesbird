@@ -11,14 +11,21 @@ function shapes() {
   return heartShapes;
 }
 
+function reducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 /** A big, soft shower of hearts and petals from both sides of the screen. */
 export function celebrate() {
-  const end = Date.now() + 2200;
+  if (reducedMotion()) return;
+  const end = Date.now() + 1800;
   const colors = ["#f0668a", "#ffb3c7", "#c9b8ff", "#ffd9c2"];
+  // Phones get a lighter shower: fewer particles means the stickers and text stay readable.
+  const perSide = window.innerWidth < 640 ? 2 : 3;
 
   (function frame() {
     confetti({
-      particleCount: 4,
+      particleCount: perSide,
       angle: 60,
       spread: 70,
       origin: { x: 0, y: 0.7 },
@@ -27,10 +34,10 @@ export function celebrate() {
       scalar: 2,
       gravity: 0.7,
       drift: 0.4,
-      ticks: 260,
+      ticks: 200,
     });
     confetti({
-      particleCount: 4,
+      particleCount: perSide,
       angle: 120,
       spread: 70,
       origin: { x: 1, y: 0.7 },
@@ -39,7 +46,7 @@ export function celebrate() {
       scalar: 2,
       gravity: 0.7,
       drift: -0.4,
-      ticks: 260,
+      ticks: 200,
     });
     if (Date.now() < end) requestAnimationFrame(frame);
   })();
@@ -47,6 +54,7 @@ export function celebrate() {
 
 /** A small pop of hearts, for tiny wins like finishing a step. */
 export function sparkle(x = 0.5, y = 0.5) {
+  if (reducedMotion()) return;
   confetti({
     particleCount: 24,
     spread: 80,
