@@ -4,10 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Chip } from "@/components/chip";
 import { Mascot } from "@/components/mascots";
+import { TextArea, TextInput } from "@/components/text-field";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { sparkle } from "@/lib/confetti";
 import { formatDay } from "@/lib/dates";
 import {
@@ -182,14 +181,13 @@ export function DetailsWizard({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="places">A place you&apos;ve wanted to try? Anything you can&apos;t eat?</Label>
-                <Textarea
+                <TextArea
                   id="places"
                   value={placeIdeas}
                   onChange={(e) => setPlaceIdeas(e.target.value)}
                   placeholder="That tiny ramen spot by the station… also I'm allergic to shrimp."
                   maxLength={300}
                   rows={3}
-                  className="rounded-2xl bg-white/80 text-base"
                 />
               </div>
             </div>
@@ -206,14 +204,13 @@ export function DetailsWizard({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="notes">Anything else they should know?</Label>
-                <Textarea
+                <TextArea
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Favourite flower, how you take your coffee, whether you cry at movies (you do)."
                   maxLength={500}
                   rows={3}
-                  className="rounded-2xl bg-white/80 text-base"
                 />
               </div>
             </div>
@@ -224,7 +221,7 @@ export function DetailsWizard({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="phone">Phone number</Label>
-                  <Input
+                  <TextInput
                     id="phone"
                     type="tel"
                     inputMode="tel"
@@ -232,20 +229,18 @@ export function DetailsWizard({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 555 010 2030"
-                    className="h-11 rounded-2xl bg-white/80"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="email">Email (optional)</Label>
-                  <Input
+                  <TextInput
                     id="email"
                     type="email"
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@somewhere.com"
-                    className="h-11 rounded-2xl bg-white/80"
                   />
                 </div>
               </div>
@@ -262,12 +257,11 @@ export function DetailsWizard({
               {contactMethod === "instagram" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="handle">Your handle</Label>
-                  <Input
+                  <TextInput
                     id="handle"
                     value={contactHandle}
                     onChange={(e) => setContactHandle(e.target.value)}
                     placeholder="@you"
-                    className="h-11 rounded-2xl bg-white/80"
                   />
                 </div>
               )}

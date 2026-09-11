@@ -13,12 +13,12 @@ const PLEAS = [
   "",
   "Hm? Let's pretend that didn't happen.",
   "The button moved. Weird. Anyway—",
-  "Eyes are getting watery over here.",
+  "Oh no. Okay. The tears have started.",
   "Look how big Yes is now. It's a sign.",
-  "Someone is getting nervous.",
+  "There's a tiny rain cloud now. You did that.",
   "Okay this is basically bullying.",
   "A tiny heart just cracked a little.",
-  "This is the last one, promise.",
+  "This is the last one, promise. Sniff.",
   "...fine. We both know the answer.",
 ];
 
@@ -42,6 +42,7 @@ export function AskQuestion({
   const [mood, setMood] = useState<Mood>("shy");
   const areaRef = useRef<HTMLDivElement>(null);
   const noRef = useRef<HTMLButtonElement>(null);
+  const yesRef = useRef<HTMLButtonElement>(null);
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastDodge = useRef(0);
 
@@ -57,29 +58,51 @@ export function AskQuestion({
     lastDodge.current = now;
     const area = areaRef.current?.getBoundingClientRect();
     const btn = noRef.current?.getBoundingClientRect();
+    const yes = yesRef.current?.getBoundingClientRect();
     if (area && btn) {
-      // Jump somewhere else inside the play area, but never right on top of Yes.
+      // Jump somewhere else inside the play area: not where it just was, and never hiding behind Yes.
       const maxX = Math.max(0, (area.width - btn.width) / 2 - 8);
       const maxY = Math.max(0, (area.height - btn.height) / 2 - 8);
-      let x = (Math.random() * 2 - 1) * maxX;
-      let y = (Math.random() * 2 - 1) * maxY;
-      if (Math.abs(x - offset.x) < 60 && Math.abs(y - offset.y) < 40) {
-        x = -x;
-        y = -y;
+      const baseCx = btn.left + btn.width / 2 - offset.x;
+      const baseCy = btn.top + btn.height / 2 - offset.y;
+      let x = 0;
+      let y = 0;
+      for (let tries = 0; tries < 12; tries++) {
+        x = (Math.random() * 2 - 1) * maxX;
+        y = (Math.random() * 2 - 1) * maxY;
+        const tooClose = Math.abs(x - offset.x) < 70 && Math.abs(y - offset.y) < 40;
+        const overYes =
+          yes &&
+          Math.abs(baseCx + x - (yes.left + yes.width / 2)) < (yes.width + btn.width) / 2 + 6 &&
+          Math.abs(baseCy + y - (yes.top + yes.height / 2)) < (yes.height + btn.height) / 2 + 6;
+        if (!tooClose && !overYes) break;
       }
       setOffset({ x, y });
     }
-    setAttempts((a) => a + 1);
-    setMood("sad");
+    const next = attempts + 1;
+    setAttempts(next);
+    // First couple of times: a pout. Keep going and the tears start, and stay a while.
+    const heartbroken = next >= 3;
+    setMood(heartbroken ? "cry" : "sad");
     if (moodTimer.current) clearTimeout(moodTimer.current);
-    moodTimer.current = setTimeout(() => setMood("shy"), 900);
+    moodTimer.current = setTimeout(() => setMood("shy"), heartbroken ? 3200 : 1400);
   }, [attempts, offset]);
 
   const yesScale = Math.min(1 + attempts * 0.14, 2.1);
   const noScale = Math.max(1 - attempts * 0.085, 0.4);
   const surrendered = attempts >= MAX_DODGES;
 
+  const cheerUp = () => {
+    if (moodTimer.current) clearTimeout(moodTimer.current);
+    setMood("love");
+  };
+  const settle = () => {
+    if (moodTimer.current) clearTimeout(moodTimer.current);
+    setMood("shy");
+  };
+
   const handleYes = () => {
+    if (moodTimer.current) clearTimeout(moodTimer.current);
     setMood("happy");
     onYes(attempts);
   };
@@ -105,8 +128,13 @@ export function AskQuestion({
         )}
       >
         <motion.button
+          ref={yesRef}
           type="button"
           onClick={handleYes}
+          onPointerEnter={cheerUp}
+          onPointerLeave={settle}
+          onFocus={cheerUp}
+          onBlur={settle}
           animate={{ scale: yesScale }}
           whileHover={{ scale: yesScale * 1.06 }}
           whileTap={{ scale: yesScale * 0.94 }}

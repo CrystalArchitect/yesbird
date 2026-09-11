@@ -8,10 +8,37 @@ export type { Mood };
 
 const OUTLINE = "#e7b8c6";
 
+const isDown = (mood: Mood) => mood === "sad" || mood === "cry";
+
+/** A tiny personal rain cloud, because the moment calls for it. */
+function RainCloud({ x = 100, y = 26 }: { x?: number; y?: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <g fill="#dfe4f3" stroke="#c3cbe6" strokeWidth="2">
+        <ellipse cx="0" cy="0" rx="20" ry="10" />
+        <circle cx="-9" cy="-5" r="9" />
+        <circle cx="5" cy="-8" r="11" />
+      </g>
+      {[-10, 0, 10].map((dx, i) => (
+        <path
+          key={dx}
+          d={`M ${dx} 10 l -2 7`}
+          stroke="#8fd0ff"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          className="animate-rain"
+          style={{ animationDelay: `${i * 0.3}s` }}
+        />
+      ))}
+    </g>
+  );
+}
+
 function Bunny({ mood }: { mood: Mood }) {
-  const earTilt = mood === "sad" ? 18 : mood === "happy" ? -6 : 0;
+  const earTilt = mood === "cry" ? 30 : mood === "sad" ? 18 : mood === "happy" ? -6 : 0;
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
+      {mood === "cry" && <RainCloud x={150} y={30} />}
       <g transform={`rotate(${-8 + earTilt} 72 70)`}>
         <ellipse cx="72" cy="52" rx="17" ry="46" fill="#fff8fa" stroke={OUTLINE} strokeWidth="3" />
         <ellipse cx="72" cy="56" rx="9" ry="32" fill="#ffc7d6" />
@@ -29,7 +56,7 @@ function Bunny({ mood }: { mood: Mood }) {
       <ellipse cx="70" cy="176" rx="15" ry="10" fill="#fff8fa" stroke={OUTLINE} strokeWidth="3" />
       <ellipse cx="130" cy="176" rx="15" ry="10" fill="#fff8fa" stroke={OUTLINE} strokeWidth="3" />
       {(mood === "happy" || mood === "love") && <Heart x={100} y={176} size={1.5} />}
-      {mood === "sad" && <Heart x={100} y={178} size={1.2} color="#d9a3b3" broken />}
+      {isDown(mood) && <Heart x={100} y={178} size={1.2} color="#d9a3b3" broken />}
     </svg>
   );
 }
@@ -47,7 +74,7 @@ function Bird({
   mood: Mood;
   flip?: boolean;
 }) {
-  const droop = mood === "sad" ? 6 : 0;
+  const droop = mood === "cry" ? 10 : mood === "sad" ? 6 : 0;
   return (
     <g transform={`translate(${x} 0) ${flip ? "scale(-1 1)" : ""}`}>
       <path
@@ -78,8 +105,9 @@ function Lovebirds({ mood }: { mood: Mood }) {
       <path d="M 10 182 Q 100 168 190 182" stroke="#a97b5b" strokeWidth="5" strokeLinecap="round" fill="none" />
       <Bird x={58} color="#ffb3c7" belly="#fff0f4" mood={mood} />
       <Bird x={142} color="#c9b8ff" belly="#f2edff" mood={mood} flip />
-      {mood === "sad" ? (
-        <Heart x={100} y={70} size={1.4} color="#d9a3b3" broken />
+      {mood === "cry" && <RainCloud x={100} y={28} />}
+      {isDown(mood) ? (
+        <Heart x={100} y={mood === "cry" ? 84 : 70} size={1.4} color="#d9a3b3" broken />
       ) : (
         <g className={mood === "happy" || mood === "love" ? "animate-heartbeat origin-center" : ""}>
           <Heart x={100} y={68} size={mood === "idle" ? 1.2 : 1.8} />
@@ -98,6 +126,7 @@ function Lovebirds({ mood }: { mood: Mood }) {
 function Bear({ mood }: { mood: Mood }) {
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
+      {mood === "cry" && <RainCloud x={158} y={30} />}
       <circle cx="48" cy="72" r="22" fill="#d8a878" stroke="#b98858" strokeWidth="3" />
       <circle cx="48" cy="72" r="11" fill="#f5d4bb" />
       <circle cx="152" cy="72" r="22" fill="#d8a878" stroke="#b98858" strokeWidth="3" />
@@ -111,7 +140,7 @@ function Bear({ mood }: { mood: Mood }) {
       <Mouth x={100} y={146} mood={mood} />
       <ellipse cx="66" cy="180" rx="16" ry="11" fill="#d8a878" stroke="#b98858" strokeWidth="3" />
       <ellipse cx="134" cy="180" rx="16" ry="11" fill="#d8a878" stroke="#b98858" strokeWidth="3" />
-      {mood === "sad" ? (
+      {isDown(mood) ? (
         <Heart x={100} y={180} size={1.2} color="#d9a3b3" broken />
       ) : (
         <Heart x={100} y={180} size={mood === "idle" || mood === "shy" ? 1.3 : 1.7} />
@@ -138,6 +167,10 @@ const MOTION: Record<Mood, { animate: TargetAndTransition; transition: Transitio
   sad: {
     animate: { y: 6, rotate: [0, -2, 2, 0], scale: 0.96 },
     transition: { duration: 0.35, repeat: Infinity, ease: "easeInOut" },
+  },
+  cry: {
+    animate: { y: 8, x: [0, -2, 2, -2, 0], rotate: 0, scale: 0.94 },
+    transition: { duration: 0.22, repeat: Infinity, ease: "easeInOut" },
   },
   happy: {
     animate: { y: [0, -22, 0], rotate: [0, -6, 6, 0], scale: [1, 1.06, 1] },

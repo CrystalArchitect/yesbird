@@ -1,15 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AvailabilityPicker } from "@/components/availability-picker";
 import { Chip } from "@/components/chip";
 import { Mascot } from "@/components/mascots";
+import { TextArea, TextInput } from "@/components/text-field";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   MASCOTS,
   MASCOT_META,
@@ -19,7 +17,47 @@ import {
   type Vibe,
 } from "@/lib/options";
 import { createInviteSchema, type Slot } from "@/lib/schemas";
+import { isPast } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+
+const DRAFT_KEY = "yesbird:draft:v1";
+
+type Draft = {
+  senderName: string;
+  recipientName: string;
+  message: string;
+  mascot: MascotKind;
+  vibe?: Vibe;
+  slots: Slot[];
+};
+
+const EMPTY: Draft = {
+  senderName: "",
+  recipientName: "",
+  message: "",
+  mascot: "bunny",
+  vibe: undefined,
+  slots: [],
+};
+
+function readDraft(): Draft | null {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<Draft>;
+    const draft: Draft = {
+      ...EMPTY,
+      ...parsed,
+      mascot: MASCOTS.includes(parsed.mascot as MascotKind) ? (parsed.mascot as MascotKind) : "bunny",
+      slots: Array.isArray(parsed.slots) ? parsed.slots.filter((s) => s?.date && !isPast(s.date)) : [],
+    };
+    const hasContent =
+      draft.senderName || draft.recipientName || draft.message || draft.slots.length > 0 || draft.vibe;
+    return hasContent ? draft : null;
+  } catch {
+    return null;
+  }
+}
 
 function Section({
   step,
@@ -33,11 +71,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.08 * step, duration: 0.35, ease: "easeOut" }}
-      className="card-cute p-6 sm:p-8"
+    <section
+      className="card-cute animate-in fade-in slide-in-from-bottom-3 fill-mode-both p-6 duration-500 sm:p-8"
+      style={{ animationDelay: `${step * 70}ms` }}
     >
       <div className="mb-5 flex items-start gap-3">
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary font-display text-sm font-semibold text-primary-foreground">
@@ -49,34 +85,58 @@ function Section({
         </div>
       </div>
       {children}
-    </motion.section>
+    </section>
   );
 }
 
 export function CreateForm() {
   const router = useRouter();
-  const [senderName, setSenderName] = useState("");
-  const [recipientName, setRecipientName] = useState("");
-  const [message, setMessage] = useState("");
-  const [mascot, setMascot] = useState<MascotKind>("bunny");
-  const [vibe, setVibe] = useState<Vibe | undefined>();
-  const [slots, setSlots] = useState<Slot[]>([]);
+  const [draft, setDraft] = useState<Draft>(EMPTY);
+  const [restored, setRestored] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const hydrated = useRef(false);
 
-  const previewName = recipientName.trim() || "them";
+  // Restore an unfinished invitation after a reload, then keep saving as they type.
+  useEffect(() => {
+    const saved = readDraft();
+    if (saved) {
+      // localStorage is browser-only, so the draft can't be the initial state without a hydration mismatch.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDraft(saved);
+      setRestored(true);
+    }
+    hydrated.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated.current) return;
+    try {
+      window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      // Private mode or full storage: drafts are a convenience, not a requirement.
+    }
+  }, [draft]);
+
+  const update = <K extends keyof Draft>(key: K, value: Draft[K]) =>
+    setDraft((d) => ({ ...d, [key]: value }));
+
+  const startOver = () => {
+    setDraft(EMPTY);
+    setRestored(false);
+    try {
+      window.localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // ignore
+    }
+  };
+
+  const previewName = draft.recipientName.trim() || "them";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const parsed = createInviteSchema.safeParse({
-      senderName,
-      recipientName,
-      message,
-      mascot,
-      vibe,
-      slots,
-    });
+    const parsed = createInviteSchema.safeParse(draft);
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Something's missing");
       return;
@@ -90,6 +150,11 @@ export function CreateForm() {
       });
       const data = (await res.json()) as { manageKey?: string; error?: string };
       if (!res.ok || !data.manageKey) throw new Error(data.error ?? "Couldn't save your invitation");
+      try {
+        window.localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        // ignore
+      }
       router.push(`/nest/${data.manageKey}?fresh=1`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't save your invitation");
@@ -98,46 +163,57 @@ export function CreateForm() {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" noValidate>
+      {restored && (
+        <div className="flex items-center justify-between gap-3 rounded-3xl bg-butter/70 px-4 py-3 text-sm text-accent-foreground ring-1 ring-accent-foreground/10 animate-in fade-in">
+          <span>
+            <strong className="font-display">Picked up where you left off.</strong> Your draft was saved.
+          </span>
+          <button type="button" onClick={startOver} className="shrink-0 font-semibold hover:underline">
+            Start over
+          </button>
+        </div>
+      )}
+
       <Section step={1} title="Who's asking, and who's the lucky one?">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="sender">Your name</Label>
-            <Input
+            <TextInput
               id="sender"
-              value={senderName}
-              onChange={(e) => setSenderName(e.target.value)}
+              name="senderName"
+              value={draft.senderName}
+              onChange={(e) => update("senderName", e.target.value)}
               placeholder="Minho"
               maxLength={40}
-              className="h-11 rounded-2xl bg-white/80"
-              required
+              autoComplete="given-name"
             />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="recipient">Their name</Label>
-            <Input
+            <TextInput
               id="recipient"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
+              name="recipientName"
+              value={draft.recipientName}
+              onChange={(e) => update("recipientName", e.target.value)}
               placeholder="Ji-woo"
               maxLength={40}
-              className="h-11 rounded-2xl bg-white/80"
-              required
+              autoComplete="off"
             />
           </div>
         </div>
       </Section>
 
-      <Section step={2} title="Pick who does the asking" hint="They'll get sad when No is hovered. Very sad.">
+      <Section step={2} title="Pick who does the asking" hint="They cry a little when No is hovered. Very cute about it.">
         <div className="grid gap-3 sm:grid-cols-3">
           {MASCOTS.map((m) => {
-            const on = mascot === m;
+            const on = draft.mascot === m;
             return (
               <button
                 key={m}
                 type="button"
                 aria-pressed={on}
-                onClick={() => setMascot(m)}
+                onClick={() => update("mascot", m)}
                 className={cn(
                   "flex flex-col items-center rounded-3xl border-2 p-4 text-center transition-all active:scale-[0.98]",
                   on
@@ -155,20 +231,21 @@ export function CreateForm() {
       </Section>
 
       <Section step={3} title="Say something sweet" hint="Optional, but this is the part they'll screenshot.">
-        <Textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+        <TextArea
+          id="message"
+          name="message"
+          value={draft.message}
+          onChange={(e) => update("message", e.target.value)}
           placeholder={`${previewName === "them" ? "Hey" : previewName}, I've been meaning to ask…`}
           maxLength={400}
           rows={3}
-          className="rounded-2xl bg-white/80 text-base"
         />
         <div className="mt-3 flex flex-wrap gap-2">
           {MESSAGE_IDEAS.map((idea) => (
             <button
               key={idea}
               type="button"
-              onClick={() => setMessage(idea)}
+              onClick={() => update("message", idea)}
               className="rounded-full bg-lavender/60 px-3 py-1 text-left text-xs font-semibold text-secondary-foreground hover:bg-lavender"
             >
               {idea}
@@ -179,7 +256,11 @@ export function CreateForm() {
           <Label className="mb-2 block">What kind of date? (optional)</Label>
           <div className="flex flex-wrap gap-2">
             {VIBES.map((v) => (
-              <Chip key={v.id} selected={vibe === v.id} onClick={() => setVibe(vibe === v.id ? undefined : v.id)}>
+              <Chip
+                key={v.id}
+                selected={draft.vibe === v.id}
+                onClick={() => update("vibe", draft.vibe === v.id ? undefined : v.id)}
+              >
                 <span aria-hidden>{v.emoji}</span> {v.label}
               </Chip>
             ))}
@@ -192,7 +273,7 @@ export function CreateForm() {
         title="When are you free?"
         hint="They'll pick from these. Offer a few so it's easy to say yes."
       >
-        <AvailabilityPicker value={slots} onChange={setSlots} />
+        <AvailabilityPicker value={draft.slots} onChange={(slots) => update("slots", slots)} />
       </Section>
 
       <div className="card-cute sticky bottom-4 flex flex-col items-center gap-3 p-4 sm:flex-row sm:justify-between">
@@ -200,9 +281,7 @@ export function CreateForm() {
           {error ? (
             <span className="font-semibold text-destructive">{error}</span>
           ) : (
-            <>
-              You&apos;ll get a private link to watch for {previewName}&apos;s answer.
-            </>
+            <>You&apos;ll get a private link to watch for {previewName}&apos;s answer.</>
           )}
         </p>
         <Button
