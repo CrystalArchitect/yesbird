@@ -16,6 +16,7 @@
   --font-mono: ui-monospace, monospace;
   --font-heading: var(--font-fredoka), var(--font-nunito), ui-rounded, sans-serif;
   --font-display: var(--font-fredoka), var(--font-nunito), ui-rounded, sans-serif;
+  --font-hand: var(--font-caveat), "Segoe Script", "Bradley Hand", cursive;
   --animate-float: float 4s ease-in-out infinite;
   --animate-wiggle: wiggle 1.6s ease-in-out infinite;
   --animate-heartbeat: heartbeat 1.4s ease-in-out infinite;
@@ -243,6 +244,10 @@
 
 @utility font-display {
   font-family: var(--font-display);
+}
+
+@utility font-hand {
+  font-family: var(--font-hand);
 }
 
 @utility text-balance {

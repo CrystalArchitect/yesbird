@@ -8,6 +8,7 @@ import { TextArea, TextInput } from "@/components/text-field";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { sparkle } from "@/lib/confetti";
+import { EASE_SOFT } from "@/lib/motion";
 import { formatDay } from "@/lib/dates";
 import {
   CONTACT_METHODS,
@@ -126,9 +127,15 @@ export function DetailsWizard({
         </div>
         <div className="flex shrink-0 gap-1" aria-label={`Step ${step + 1} of ${STEPS.length}`}>
           {STEPS.map((_, i) => (
-            <span key={i} className={i <= step ? "text-primary" : "text-primary/25"} aria-hidden>
+            <motion.span
+              key={i}
+              animate={{ scale: i === step ? 1.35 : 1, color: i <= step ? "#f0668a" : "#f5c3d2" }}
+              transition={{ type: "spring", stiffness: 300, damping: 18 }}
+              className="text-lg leading-none"
+              aria-hidden
+            >
               ♥
-            </span>
+            </motion.span>
           ))}
         </div>
       </div>
@@ -136,10 +143,10 @@ export function DetailsWizard({
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -24 }}
-          transition={{ duration: 0.25 }}
+          initial={{ opacity: 0, x: 36, filter: "blur(4px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, x: -36, filter: "blur(4px)", transition: { duration: 0.3 } }}
+          transition={{ duration: 0.55, ease: EASE_SOFT }}
         >
           {step === 0 && (
             <div className="space-y-3">
