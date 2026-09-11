@@ -28,7 +28,7 @@ export function ItsADate({
       className="card-cute w-full max-w-lg overflow-hidden text-center"
     >
       <div className="bg-gradient-to-b from-blush/70 to-transparent px-6 pt-8">
-        <Mascot kind={mascot} mood="love" className="mx-auto h-40 w-40" />
+        <Mascot kind={mascot} mood="love" accessory="partyhat" className="mx-auto h-40 w-40" />
       </div>
       <div className="px-6 pb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary/80">

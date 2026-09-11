@@ -1,21 +1,26 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chip } from "@/components/chip";
 import { Mascot } from "@/components/mascots";
+import { SpeechBubble } from "@/components/stickers";
 import { TextArea, TextInput } from "@/components/text-field";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { sparkle } from "@/lib/confetti";
 import { EASE_SOFT } from "@/lib/motion";
-import { formatDay } from "@/lib/dates";
+import { formatDay, isPast } from "@/lib/dates";
 import {
   CONTACT_METHODS,
+  CONTACT_REACTIONS,
   FOODS,
+  FOOD_REACTIONS,
   INTERESTS,
+  INTEREST_REACTIONS,
   TIMES,
   TIME_BY_ID,
+  TIME_REACTIONS,
   type ContactMethod,
   type Mascot as MascotKind,
   type TimeId,
@@ -36,13 +41,34 @@ function toggle<T>(list: T[], item: T): T[] {
 export function DetailsWizard({
   invite,
   noAttempts,
+  preview = false,
   onDone,
 }: {
   invite: PublicInvite;
   noAttempts: number;
+  /** The asker looking at their own invitation: nothing is saved. */
+  preview?: boolean;
   onDone: (response: ResponseInput) => void;
 }) {
   const [step, setStep] = useState(0);
+  const [reaction, setReaction] = useState<string | null>(null);
+  const reactionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Days that have already gone by can't be picked. If none are left, they can still say yes;
+  // the asker is told to sort out a new day.
+  const openSlots = useMemo(() => invite.slots.filter((s) => !isPast(s.date)), [invite.slots]);
+  const nothingLeft = openSlots.length === 0;
+
+  useEffect(() => () => {
+    if (reactionTimer.current) clearTimeout(reactionTimer.current);
+  }, []);
+
+  const react = (line: string, selected: boolean) => {
+    if (!selected) return;
+    setReaction(line);
+    if (reactionTimer.current) clearTimeout(reactionTimer.current);
+    reactionTimer.current = setTimeout(() => setReaction(null), 3800);
+  };
   const [chosen, setChosen] = useState<Slot[]>([]);
   const [foods, setFoods] = useState<string[]>([]);
   const [placeIdeas, setPlaceIdeas] = useState("");
@@ -63,18 +89,27 @@ export function DetailsWizard({
     const next = chosen.filter((s) => s.date !== date);
     if (times.length) next.push({ date, times: TIMES.map((t) => t.id).filter((t) => times.includes(t)) });
     setChosen(next.sort((a, b) => a.date.localeCompare(b.date)));
+    react(TIME_REACTIONS[time], !current.includes(time));
   };
 
-  const selectEverything = () => setChosen(invite.slots.map((s) => ({ date: s.date, times: [...s.times] })));
+  const selectEverything = () => {
+    setChosen(openSlots.map((s) => ({ date: s.date, times: [...s.times] })));
+    react("All of them?! My calendar is blushing.", true);
+  };
   const totalChosen = chosen.reduce((n, s) => n + s.times.length, 0);
 
-  const canContinue = [totalChosen > 0, true, true, phone.trim().length >= 6][step];
+  const canContinue = [totalChosen > 0 || nothingLeft, true, true, phone.trim().length >= 6][step];
+
+  const goTo = (s: number) => {
+    setError(null);
+    setReaction(null);
+    setStep(s);
+  };
 
   const next = () => {
-    setError(null);
     if (!canContinue) return;
     sparkle(0.5, 0.35);
-    setStep((s) => s + 1);
+    goTo(step + 1);
   };
 
   const submit = async () => {
@@ -93,6 +128,10 @@ export function DetailsWizard({
     });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Something's missing");
+      return;
+    }
+    if (preview) {
+      onDone(parsed.data);
       return;
     }
     setSubmitting(true);
@@ -117,12 +156,18 @@ export function DetailsWizard({
 
   return (
     <div className="card-cute w-full max-w-2xl p-6 sm:p-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Mascot kind={mascot} mood={step === 3 ? "love" : "happy"} className="h-16 w-16" />
-          <div>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <Mascot
+            kind={mascot}
+            mood={reaction || step === 3 ? "love" : "happy"}
+            className="h-16 w-16 shrink-0 sm:h-20 sm:w-20"
+          />
+          <div className="min-w-0">
             <h2 className="font-display text-xl font-semibold leading-tight sm:text-2xl">{STEPS[step].title}</h2>
-            <p className="text-sm text-muted-foreground">{STEPS[step].hint}</p>
+            <div className="mt-1.5">
+              <SpeechBubble text={reaction ?? STEPS[step].hint} tone={reaction ? "loud" : "soft"} />
+            </div>
           </div>
         </div>
         <div className="flex shrink-0 gap-1" aria-label={`Step ${step + 1} of ${STEPS.length}`}>
@@ -148,9 +193,18 @@ export function DetailsWizard({
           exit={{ opacity: 0, x: -36, filter: "blur(4px)", transition: { duration: 0.3 } }}
           transition={{ duration: 0.55, ease: EASE_SOFT }}
         >
-          {step === 0 && (
+          {step === 0 && nothingLeft && (
+            <div className="rounded-3xl bg-butter/60 p-5 text-sm text-accent-foreground">
+              <p className="font-display text-base font-semibold">The days I offered have already flown by.</p>
+              <p className="mt-1">
+                That&apos;s on me. Say yes anyway and I&apos;ll reach out so we can find a new one together.
+              </p>
+            </div>
+          )}
+
+          {step === 0 && !nothingLeft && (
             <div className="space-y-3">
-              {invite.slots.map((slot) => (
+              {openSlots.map((slot) => (
                 <div key={slot.date} className="rounded-3xl bg-white/70 p-4 ring-1 ring-primary/10">
                   <div className="mb-2 font-display font-semibold">{formatDay(slot.date)}</div>
                   <div className="flex flex-wrap gap-2">
@@ -181,7 +235,14 @@ export function DetailsWizard({
             <div className="space-y-5">
               <div className="flex flex-wrap gap-2">
                 {FOODS.map((f) => (
-                  <Chip key={f} selected={foods.includes(f)} onClick={() => setFoods(toggle(foods, f))}>
+                  <Chip
+                    key={f}
+                    selected={foods.includes(f)}
+                    onClick={() => {
+                      setFoods(toggle(foods, f));
+                      react(FOOD_REACTIONS[f], !foods.includes(f));
+                    }}
+                  >
                     {f}
                   </Chip>
                 ))}
@@ -204,7 +265,14 @@ export function DetailsWizard({
             <div className="space-y-5">
               <div className="flex flex-wrap gap-2">
                 {INTERESTS.map((i) => (
-                  <Chip key={i} selected={interests.includes(i)} onClick={() => setInterests(toggle(interests, i))}>
+                  <Chip
+                    key={i}
+                    selected={interests.includes(i)}
+                    onClick={() => {
+                      setInterests(toggle(interests, i));
+                      react(INTEREST_REACTIONS[i], !interests.includes(i));
+                    }}
+                  >
                     {i}
                   </Chip>
                 ))}
@@ -255,7 +323,14 @@ export function DetailsWizard({
                 <Label className="mb-2 block">Best way to reach you</Label>
                 <div className="flex flex-wrap gap-2">
                   {CONTACT_METHODS.map((c) => (
-                    <Chip key={c.id} selected={contactMethod === c.id} onClick={() => setContactMethod(c.id)}>
+                    <Chip
+                      key={c.id}
+                      selected={contactMethod === c.id}
+                      onClick={() => {
+                        setContactMethod(c.id);
+                        react(CONTACT_REACTIONS[c.id], contactMethod !== c.id);
+                      }}
+                    >
                       <span aria-hidden>{c.emoji}</span> {c.label}
                     </Chip>
                   ))}
@@ -283,7 +358,7 @@ export function DetailsWizard({
           variant="ghost"
           className="rounded-full"
           disabled={step === 0 || submitting}
-          onClick={() => setStep((s) => s - 1)}
+          onClick={() => goTo(step - 1)}
         >
           Back
         </Button>
@@ -293,7 +368,9 @@ export function DetailsWizard({
             <Button type="button" className="h-11 rounded-full px-6" disabled={!canContinue} onClick={next}>
               {step === 0 && totalChosen > 0
                 ? `Next · ${totalChosen} time${totalChosen === 1 ? "" : "s"}`
-                : "Next"}
+                : step === 0 && nothingLeft
+                  ? "Yes anyway"
+                  : "Next"}
             </Button>
           ) : (
             <Button

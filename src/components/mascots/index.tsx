@@ -2,9 +2,12 @@
 
 import { motion, type TargetAndTransition, type Transition } from "framer-motion";
 import type { Mascot as MascotKind } from "@/lib/options";
+import { PartyHat, Sunglasses, type Accessory } from "./accessories";
 import { Blush, Eye, Heart, Mouth, type Mood } from "./face";
 
-export type { Mood };
+export type { Mood, Accessory };
+
+type ArtProps = { mood: Mood; accessory: Accessory };
 
 const OUTLINE = "#e7b8c6";
 
@@ -34,7 +37,7 @@ function RainCloud({ x = 100, y = 26 }: { x?: number; y?: number }) {
   );
 }
 
-function Bunny({ mood }: { mood: Mood }) {
+function Bunny({ mood, accessory }: ArtProps) {
   const earTilt = mood === "cry" ? 30 : mood === "sad" ? 18 : mood === "happy" ? -6 : 0;
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
@@ -53,6 +56,8 @@ function Bunny({ mood }: { mood: Mood }) {
       <Eye x={124} y={116} mood={mood} side="right" />
       <ellipse cx="100" cy="133" rx="4.5" ry="3" fill="#ff8fab" />
       <Mouth x={100} y={139} mood={mood} />
+      {accessory === "sunglasses" && <Sunglasses lx={76} ly={116} rx={124} ry={116} />}
+      {accessory === "partyhat" && <PartyHat x={100} y={68} />}
       <ellipse cx="70" cy="176" rx="15" ry="10" fill="#fff8fa" stroke={OUTLINE} strokeWidth="3" />
       <ellipse cx="130" cy="176" rx="15" ry="10" fill="#fff8fa" stroke={OUTLINE} strokeWidth="3" />
       {(mood === "happy" || mood === "love") && <Heart x={100} y={176} size={1.5} />}
@@ -99,12 +104,24 @@ function Bird({
   );
 }
 
-function Lovebirds({ mood }: { mood: Mood }) {
+function Lovebirds({ mood, accessory }: ArtProps) {
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
       <path d="M 10 182 Q 100 168 190 182" stroke="#a97b5b" strokeWidth="5" strokeLinecap="round" fill="none" />
       <Bird x={58} color="#ffb3c7" belly="#fff0f4" mood={mood} />
       <Bird x={142} color="#c9b8ff" belly="#f2edff" mood={mood} flip />
+      {accessory === "partyhat" && (
+        <>
+          <PartyHat x={54} y={92} scale={0.62} tilt={-14} />
+          <PartyHat x={146} y={92} scale={0.62} tilt={14} />
+        </>
+      )}
+      {accessory === "sunglasses" && (
+        <>
+          <Sunglasses lx={62} ly={118} rx={78} ry={118} w={14} h={11} />
+          <Sunglasses lx={122} ly={118} rx={138} ry={118} w={14} h={11} />
+        </>
+      )}
       {mood === "cry" && <RainCloud x={100} y={28} />}
       {isDown(mood) ? (
         <Heart x={100} y={mood === "cry" ? 84 : 70} size={1.4} color="#d9a3b3" broken />
@@ -123,7 +140,7 @@ function Lovebirds({ mood }: { mood: Mood }) {
   );
 }
 
-function Bear({ mood }: { mood: Mood }) {
+function Bear({ mood, accessory }: ArtProps) {
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
       {mood === "cry" && <RainCloud x={158} y={30} />}
@@ -138,6 +155,8 @@ function Bear({ mood }: { mood: Mood }) {
       <Eye x={126} y={110} mood={mood} side="right" />
       <ellipse cx="100" cy="134" rx="7" ry="5" fill="#3b2233" />
       <Mouth x={100} y={146} mood={mood} />
+      {accessory === "sunglasses" && <Sunglasses lx={74} ly={110} rx={126} ry={110} />}
+      {accessory === "partyhat" && <PartyHat x={100} y={62} />}
       <ellipse cx="66" cy="180" rx="16" ry="11" fill="#d8a878" stroke="#b98858" strokeWidth="3" />
       <ellipse cx="134" cy="180" rx="16" ry="11" fill="#d8a878" stroke="#b98858" strokeWidth="3" />
       {isDown(mood) ? (
@@ -149,7 +168,7 @@ function Bear({ mood }: { mood: Mood }) {
   );
 }
 
-function Kitty({ mood }: { mood: Mood }) {
+function Kitty({ mood, accessory }: ArtProps) {
   const CREAM = "#fff4e8";
   const LINE = "#ead0bb";
   const earDroop = isDown(mood) ? 14 : mood === "happy" ? -4 : 0;
@@ -181,6 +200,8 @@ function Kitty({ mood }: { mood: Mood }) {
       <Eye x={124} y={118} mood={mood} side="right" />
       <path d="M 95 133 h 10 l -5 5 z" fill="#ff8fab" />
       <Mouth x={100} y={141} mood={mood} />
+      {accessory === "sunglasses" && <Sunglasses lx={76} ly={118} rx={124} ry={118} />}
+      {accessory === "partyhat" && <PartyHat x={100} y={70} />}
       <ellipse cx="72" cy="178" rx="15" ry="10" fill={CREAM} stroke={LINE} strokeWidth="3" />
       <ellipse cx="128" cy="178" rx="15" ry="10" fill={CREAM} stroke={LINE} strokeWidth="3" />
       {isDown(mood) ? (
@@ -192,7 +213,7 @@ function Kitty({ mood }: { mood: Mood }) {
   );
 }
 
-function Duck({ mood }: { mood: Mood }) {
+function Duck({ mood, accessory }: ArtProps) {
   const YELLOW = "#ffe28f";
   const LINE = "#ecc45e";
   const beakTilt = isDown(mood) ? 5 : 0;
@@ -228,6 +249,8 @@ function Duck({ mood }: { mood: Mood }) {
         {(mood === "happy" || mood === "love") && <path d="M 86 122 q 14 12 28 0 q -14 4 -28 0 z" fill="#c95b4a" />}
         {mood === "cry" && <path d="M 90 126 q 5 -3 10 0 q 5 3 10 0" stroke="#c95b4a" strokeWidth="2" fill="none" strokeLinecap="round" />}
       </g>
+      {accessory === "sunglasses" && <Sunglasses lx={80} ly={100} rx={120} ry={100} w={24} h={16} />}
+      {accessory === "partyhat" && <PartyHat x={100} y={54} tilt={10} />}
       {isDown(mood) ? (
         <Heart x={100} y={172} size={1.2} color="#d9a3b3" broken />
       ) : (
@@ -237,7 +260,7 @@ function Duck({ mood }: { mood: Mood }) {
   );
 }
 
-const ART: Record<MascotKind, (p: { mood: Mood }) => React.ReactElement> = {
+const ART: Record<MascotKind, (p: ArtProps) => React.ReactElement> = {
   bunny: Bunny,
   lovebirds: Lovebirds,
   bear: Bear,
@@ -275,10 +298,12 @@ const MOTION: Record<Mood, { animate: TargetAndTransition; transition: Transitio
 export function Mascot({
   kind,
   mood = "idle",
+  accessory = "none",
   className = "h-40 w-40",
 }: {
   kind: MascotKind;
   mood?: Mood;
+  accessory?: Accessory;
   className?: string;
 }) {
   const Art = ART[kind];
@@ -290,7 +315,7 @@ export function Mascot({
       transition={m.transition}
       style={{ transformOrigin: "50% 90%" }}
     >
-      <Art mood={mood} />
+      <Art mood={mood} accessory={accessory} />
     </motion.div>
   );
 }

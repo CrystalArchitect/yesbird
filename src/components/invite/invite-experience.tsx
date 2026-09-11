@@ -6,6 +6,7 @@ import { FloatingHearts } from "@/components/floating-hearts";
 import { Mascot } from "@/components/mascots";
 import { Petals } from "@/components/petals";
 import { Sparkles } from "@/components/sparkles";
+import { StickerBurst } from "@/components/stickers";
 import { Button } from "@/components/ui/button";
 import { celebrate } from "@/lib/confetti";
 import { EASE_SOFT, gentleSlow } from "@/lib/motion";
@@ -20,8 +21,8 @@ type Stage = "letter" | "ask" | "yay" | "details" | "done";
 const YAY_LINES = ["YESSS!!!", "They said yes!!", "Okay okay okay breathe", "Best. Day. Ever."];
 const YAY_MS = 4600;
 
-export function InviteExperience({ invite }: { invite: PublicInvite }) {
-  const [stage, setStage] = useState<Stage>(invite.answered ? "done" : "letter");
+export function InviteExperience({ invite, preview = false }: { invite: PublicInvite; preview?: boolean }) {
+  const [stage, setStage] = useState<Stage>(invite.answered && !preview ? "done" : "letter");
   const [noAttempts, setNoAttempts] = useState(0);
   const [chosenSlots, setChosenSlots] = useState<Slot[]>(invite.chosenSlots ?? []);
   const yayLine = YAY_LINES[noAttempts % YAY_LINES.length];
@@ -39,6 +40,13 @@ export function InviteExperience({ invite }: { invite: PublicInvite }) {
     <>
       <Petals count={festive ? 30 : 14} />
       {festive && <FloatingHearts />}
+      {preview && (
+        <div className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-3">
+          <p className="rounded-full bg-foreground/85 px-4 py-1.5 text-center text-xs font-semibold text-white shadow-lg backdrop-blur">
+            Preview · this is what {invite.recipientName} will see. Nothing you tap here is saved.
+          </p>
+        </div>
+      )}
       <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-10">
         <AnimatePresence mode="wait">
           {stage === "letter" && (
@@ -82,9 +90,10 @@ export function InviteExperience({ invite }: { invite: PublicInvite }) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, y: -30, transition: { duration: 0.4 } }}
               transition={{ type: "spring", stiffness: 180, damping: 16 }}
-              className="flex flex-col items-center gap-4 text-center"
+              className="relative flex flex-col items-center gap-4 text-center"
             >
-              <Mascot kind={invite.mascot} mood="happy" className="h-56 w-56 sm:h-64 sm:w-64" />
+              <StickerBurst except={invite.mascot} />
+              <Mascot kind={invite.mascot} mood="happy" accessory="partyhat" className="h-56 w-56 sm:h-64 sm:w-64" />
               <motion.h1
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -123,6 +132,7 @@ export function InviteExperience({ invite }: { invite: PublicInvite }) {
               <DetailsWizard
                 invite={invite}
                 noAttempts={noAttempts}
+                preview={preview}
                 onDone={(r) => {
                   setChosenSlots(r.chosenSlots);
                   celebrate();
@@ -139,7 +149,7 @@ export function InviteExperience({ invite }: { invite: PublicInvite }) {
                 recipientName={invite.recipientName}
                 senderName={invite.senderName}
                 chosenSlots={chosenSlots}
-                alreadyAnswered={invite.answered}
+                alreadyAnswered={invite.answered && !preview}
               />
             </motion.div>
           )}
