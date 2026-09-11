@@ -21,13 +21,25 @@ const caveat = Caveat({
   weight: ["500", "600", "700"],
 });
 
+// Absolute URLs for link previews. Set NEXT_PUBLIC_APP_URL in production; Vercel's own URL is the fallback.
+const siteUrl =
+  process.env.NEXT_PUBLIC_APP_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : `http://localhost:${process.env.PORT ?? 4682}`);
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Yesbird — the cutest way to ask someone out",
     template: "%s · Yesbird",
   },
   description:
     "Make a little invitation, send one link, and let them say yes. (The No button doesn't really work.)",
+  openGraph: {
+    siteName: "Yesbird",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
