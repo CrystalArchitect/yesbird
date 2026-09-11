@@ -13,7 +13,8 @@ K-drama pastel vibes, hand-drawn SVG mascots, falling petals, heart confetti.
 | Asker | `/` | Landing page with a live demo of the runaway No button. |
 | Asker | `/create` | Names, an optional email for yourself, mascot (Mochi the bunny, Boba the bear, Dumpling the kitty, Peach the duckling, or the lovebirds), a sweet message, date vibe, and availability as day + time-of-day slots. The draft auto-saves in the browser, so a reload never loses what was typed. |
 | Asker | `/nest/<key>` | Private page: the share link (copy / WhatsApp / SMS / email), a "waiting" state that polls, and the full answer once it lands. The key is the only way to see the answer — bookmark it. If you left an email, the answer is emailed to you too. |
-| Sweetheart | `/to/<id>` | Sealed letter → the question with Yes/No → celebration → 4-step wizard → "It's a date" card. Re-opening the link after answering shows a "you already said yes" card. |
+| Sweetheart | `/to/<id>` | Sealed letter → the question with Yes/No → celebration (the other mascots crash it as stickers) → 4-step wizard with sticker reactions → "It's a date" card. Re-opening the link after answering shows a "you already said yes" card. The link unfurls as a pink envelope card in WhatsApp / iMessage. |
+| Asker | `/to/<id>?preview=1` | Preview mode from the nest page: the whole experience, nothing saved. |
 
 The mascots have moods: `idle`, `shy`, `sad` (first pokes at No), `cry` (keep poking: tears, wobbly lip, drooping ears, a tiny rain cloud), `happy`, and `love` (hover Yes and they recover instantly).
 
@@ -64,11 +65,13 @@ src/
     to/[id]/page.tsx         the invitation the sweetheart opens
     nest/[key]/page.tsx      the asker's private page
     api/...                  route handlers
+    opengraph-image.tsx      link-preview cards (also under to/[id]/)
   components/
-    mascots/                 SVG bunny, bear, kitty, duckling, lovebirds with moods (idle, shy, sad, cry, happy, love)
+    mascots/                 SVG bunny, bear, kitty, duckling, lovebirds with moods (idle, shy, sad, cry, happy, love) + party hats & sunglasses
     invite/                  envelope, runaway-No question, celebration, details wizard, "it's a date"
     availability-picker.tsx  21-day grid + time-of-day chips
     tip-jar.tsx              Buy Me a Coffee nudge (asker pages only)
+    stickers.tsx             speech bubbles + celebration sticker burst
     create-form.tsx, nest-view.tsx, landing-demo.tsx, petals.tsx, sparkles.tsx, floating-hearts.tsx, chip.tsx, brand.tsx
   lib/
     options.ts               mascots, times of day, foods, interests, contact methods, No-button lines

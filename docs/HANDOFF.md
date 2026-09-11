@@ -7,6 +7,29 @@ person says yes.
 
 Read this file fully before changing code. Everything referenced here exists in the repo today.
 
+## 0. Prompt to paste into your coding agent
+
+```
+You are finishing and deploying "Yesbird", a Next.js 16 app in this repository. Read docs/HANDOFF.md
+completely before touching anything, then do exactly these things, in order, checking off each:
+
+1. Install and verify: `npm ci`, then `npx tsc --noEmit && npm run lint && npm run build` must all pass.
+2. Deploy to Vercel (or the host I tell you). Framework preset: Next.js, no build overrides.
+3. Storage: create an Upstash Redis database and set UPSTASH_REDIS_REST_URL and
+   UPSTASH_REDIS_REST_TOKEN on the host (required on Vercel — the filesystem is not persistent).
+4. Email: set up Resend. Set RESEND_API_KEY and EMAIL_FROM (a sender on a domain I've verified in
+   Resend; until then use the sandbox sender by leaving EMAIL_FROM unset). Set NEXT_PUBLIC_APP_URL to
+   the final https URL so links in the email and link previews are absolute. The sending code already
+   exists in src/lib/notify.ts and is called after the recipient submits; do not rewrite it, only
+   configure it.
+5. Run the smoke test in HANDOFF.md section 6 on the deployed URL: create an invitation with my
+   email, open the public link in a private window, hover No (the mascot cries), tap Yes, complete the
+   wizard, then confirm the private /nest page shows the answer and the email arrived.
+6. Do NOT change the recipient experience (/to/*), the animations, the copy, or the mascots unless
+   something is actually broken. Never show donations or the asker's email/private key on /to/*.
+7. Report back with: the live URL, which env vars you set (names only), and the smoke-test results.
+```
+
 ---
 
 ## 1. What Yesbird is (30 seconds)
@@ -55,11 +78,25 @@ src/components/
   mascots/               five SVG mascots with moods (idle, shy, sad, cry, happy, love).
 ```
 
+Also present:
+
+- `src/app/opengraph-image.tsx` and `src/app/to/[id]/opengraph-image.tsx` render the link-preview cards
+  (WhatsApp / iMessage / Instagram) with `next/og`. Fonts for them live in `src/assets/fonts/`.
+  `metadataBase` in `src/app/layout.tsx` comes from `NEXT_PUBLIC_APP_URL` (or Vercel's production URL).
+- `/to/<id>?preview=1` is preview mode for the asker (linked from the nest page): the full experience
+  runs but nothing is saved. Keep it that way.
+- `src/components/stickers.tsx`: chat-sticker speech bubbles and the celebration burst (other mascots
+  with party hats and sunglasses). Accessories are drawn in `src/components/mascots/accessories.tsx`.
+
 Product rules that must hold after any change:
 
 - `/to/*` (the recipient's experience) never shows donations, ads, the asker's email, or the private key.
   `toPublicInvite()` in `schemas.ts` strips `senderEmail`, `manageKey`, and the response — keep it that way.
-- One answer per invitation (`409` on a second submit).
+- One answer per invitation (`409` on a second submit). Preview mode never writes.
+- `response.chosenSlots` may be empty: that means every offered day had passed when the recipient
+  answered. The nest page and the email already explain this to the asker.
+- Dates are formatted with the fixed `en-US` locale (`src/lib/dates.ts`) so server-rendered HTML matches
+  every visitor's browser. Don't switch to the browser locale without moving that rendering client-side.
 - Animations stay slow and soft: reuse `gentle`, `gentleSlow`, `springy`, `bouncy` from `src/lib/motion.ts`.
   Do not add `layout` animations to lists that change on click; they cause flashes.
 
@@ -196,9 +233,14 @@ On hosts that run `npm start`, either keep 4682 or change the `start` script to 
 
 1. `/` loads, mascots animate, no console errors.
 2. `/create` → fill everything including your email → "Create my invitation" → lands on `/nest/<key>?fresh=1`.
-3. Open the public link in a private window → open letter → hover No (mascot cries) → Yes → wizard → "It's a date".
-4. `/nest/<key>` shows the answer within ~8s; the email arrives (or the webhook fires / server log shows it).
-5. Re-open the public link → "already said yes" card, no second submit possible.
+3. On the nest page, "Preview" opens `/to/<id>?preview=1` with a dark "Preview" pill at the top. Go through
+   it to the end; the nest page must still say "Waiting".
+4. Open the public link in a private window → open letter → hover No (mascot cries) → Yes → stickers
+   burst → wizard (bubbles react to picks) → "It's a date".
+5. `/nest/<key>` shows the answer within ~8s; the email arrives (or the webhook fires / server log shows it).
+6. Re-open the public link → "already said yes" card, no second submit possible.
+7. Paste the public link into WhatsApp or iMessage: the preview card reads "For <name>" on a pink envelope.
+   If it doesn't, `NEXT_PUBLIC_APP_URL` is missing or wrong.
 
 ---
 
