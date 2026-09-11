@@ -11,9 +11,11 @@ K-drama pastel vibes, hand-drawn SVG mascots, falling petals, heart confetti.
 | Who | Page | What happens |
 | --- | --- | --- |
 | Asker | `/` | Landing page with a live demo of the runaway No button. |
-| Asker | `/create` | Names, mascot (Mochi the bunny / the lovebirds / Boba the bear), a sweet message, date vibe, and availability as day + time-of-day slots. |
+| Asker | `/create` | Names, mascot (Mochi the bunny / the lovebirds / Boba the bear), a sweet message, date vibe, and availability as day + time-of-day slots. The draft auto-saves in the browser, so a reload never loses what was typed. |
 | Asker | `/nest/<key>` | Private page: the share link (copy / WhatsApp / SMS / email), a "waiting" state that polls, and the full answer once it lands. The key is the only way to see the answer — bookmark it. |
 | Sweetheart | `/to/<id>` | Sealed letter → the question with Yes/No → celebration → 4-step wizard → "It's a date" card. Re-opening the link after answering shows a "you already said yes" card. |
+
+The mascots have moods: `idle`, `shy`, `sad` (first pokes at No), `cry` (keep poking: tears, wobbly lip, drooping ears, a tiny rain cloud), `happy`, and `love` (hover Yes and they recover instantly).
 
 ## Tech
 
@@ -41,6 +43,8 @@ npm run dev
 Open [http://localhost:4682](http://localhost:4682).
 
 Other scripts: `npm run build`, `npm start` (production server on port 4682), `npm run lint`.
+
+For trying the app with someone (rather than editing code), prefer `npm run build && npm start`: the dev server's hot reloading can refresh a page mid-typing, the production server never will.
 
 Set `YESBIRD_DATA_DIR` to change where invitation JSON files are written (defaults to `./data/invites`).
 
