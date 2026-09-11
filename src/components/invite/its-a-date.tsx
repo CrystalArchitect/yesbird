@@ -37,11 +37,14 @@ export function ItsADate({
         <h1 className="mt-2 font-display text-3xl font-semibold text-balance sm:text-4xl">
           {recipientName} <span className="text-primary">♥</span> {senderName}
         </h1>
-        <p className="mt-3 text-muted-foreground">
-          {alreadyAnswered
-            ? `${senderName} has your answer. Nothing left to do but pick an outfit.`
-            : `${senderName} just got the happiest notification of the week. They'll reach out to lock in the details.`}
-        </p>
+        <div className="mx-auto mt-5 max-w-sm rounded-3xl bg-white/80 px-5 py-4 text-left ring-1 ring-primary/10">
+          <p className="font-hand text-2xl leading-snug text-foreground">
+            {alreadyAnswered
+              ? `I've got your answer, ${recipientName}. Nothing left to do but pick an outfit.`
+              : `${recipientName}, you just made my whole week. I'll reach out soon to lock in the details. Can't wait.`}
+          </p>
+          <p className="mt-2 text-right font-hand text-xl text-primary">♡ {senderName}</p>
+        </div>
 
         {chosenSlots.length > 0 && (
           <div className="mt-6 rounded-3xl bg-white/80 p-4 text-left ring-1 ring-primary/10">

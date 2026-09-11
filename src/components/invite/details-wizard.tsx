@@ -23,10 +23,10 @@ import {
 import { responseSchema, type PublicInvite, type ResponseInput, type Slot } from "@/lib/schemas";
 
 const STEPS = [
-  { title: "When works for you?", hint: (n: string) => `${n} is free on these days. Tap every time you could do.` },
-  { title: "What are you craving?", hint: () => "So they can pick a place you'll actually love." },
-  { title: "Little things about you", hint: () => "For the part of the date after the food." },
-  { title: "How should they reach you?", hint: (n: string) => `Only ${n} sees this. Promise.` },
+  { title: "When works for you?", hint: "I'm free on these days. Tap every time you could do." },
+  { title: "What are you craving?", hint: "So I can pick a place you'll actually love." },
+  { title: "Little things about you", hint: "For the part of the date after the food." },
+  { title: "How should I reach you?", hint: "This stays between us. Promise." },
 ];
 
 function toggle<T>(list: T[], item: T): T[] {
@@ -122,7 +122,7 @@ export function DetailsWizard({
           <Mascot kind={mascot} mood={step === 3 ? "love" : "happy"} className="h-16 w-16" />
           <div>
             <h2 className="font-display text-xl font-semibold leading-tight sm:text-2xl">{STEPS[step].title}</h2>
-            <p className="text-sm text-muted-foreground">{STEPS[step].hint(invite.senderName)}</p>
+            <p className="text-sm text-muted-foreground">{STEPS[step].hint}</p>
           </div>
         </div>
         <div className="flex shrink-0 gap-1" aria-label={`Step ${step + 1} of ${STEPS.length}`}>
@@ -210,7 +210,7 @@ export function DetailsWizard({
                 ))}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="notes">Anything else they should know?</Label>
+                <Label htmlFor="notes">Anything else I should know?</Label>
                 <TextArea
                   id="notes"
                   value={notes}
