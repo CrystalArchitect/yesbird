@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/brand";
 import { NestView } from "@/components/nest-view";
 import { Petals } from "@/components/petals";
+import { TipJar } from "@/components/tip-jar";
 import { Button } from "@/components/ui/button";
 import { getInviteByManageKey } from "@/lib/store";
 
@@ -32,6 +33,7 @@ export default async function NestPage({ params, searchParams }: PageProps<"/nes
       />
       <main className="mx-auto w-full max-w-3xl px-5 pb-24">
         <NestView initial={invite} manageKey={key} fresh={fresh === "1"} />
+        <TipJar context="nest" className="mt-8" />
       </main>
     </>
   );

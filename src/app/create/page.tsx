@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/brand";
 import { CreateForm } from "@/components/create-form";
 import { Petals } from "@/components/petals";
+import { TipJar } from "@/components/tip-jar";
 
 export const metadata: Metadata = {
   title: "Make an invitation",
@@ -19,6 +20,7 @@ export default function CreatePage() {
             Four little steps. No account. Takes about two minutes, plus however long you stare at the message box.
           </p>
         </div>
+        <TipJar className="mb-6 animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-700 [animation-delay:400ms]" />
         <CreateForm />
       </main>
     </>
