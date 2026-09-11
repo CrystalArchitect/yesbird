@@ -3,7 +3,10 @@ import { SiteHeader } from "@/components/brand";
 import { LandingDemo } from "@/components/landing-demo";
 import { Mascot } from "@/components/mascots";
 import { Petals } from "@/components/petals";
+import { Sparkles } from "@/components/sparkles";
+import { TipLink } from "@/components/tip-jar";
 import { Button } from "@/components/ui/button";
+import { MASCOTS, MASCOT_META } from "@/lib/options";
 
 const STEPS = [
   {
@@ -46,7 +49,7 @@ export default function HomePage() {
       />
 
       <main className="mx-auto w-full max-w-5xl px-5 pb-24">
-        <section className="grid items-center gap-10 py-10 *:min-w-0 md:grid-cols-[1.1fr_0.9fr] md:py-16">
+        <section className="grid items-center gap-10 py-10 *:min-w-0 md:grid-cols-2 md:py-16">
           <div className="space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1.5 text-sm font-semibold text-primary ring-1 ring-primary/15">
               <span aria-hidden>🐦</span> For hopeless romantics with shaky hands
@@ -67,18 +70,47 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative mx-auto flex h-60 w-full max-w-sm items-end justify-center overflow-hidden sm:h-80">
+          <div className="relative mx-auto flex h-64 w-full max-w-lg items-end justify-center overflow-hidden sm:h-80">
+            <Sparkles count={9} className="inset-4" />
             <div className="absolute inset-x-8 bottom-6 h-40 rounded-[3rem] bg-gradient-to-t from-blush to-transparent blur-2xl" />
-            <div className="relative -mr-6 mb-2 animate-float [animation-delay:-1s] sm:-mr-8">
-              <Mascot kind="bear" mood="shy" className="h-28 w-28 sm:h-44 sm:w-44" />
+            <div className="absolute bottom-3 left-0 hidden -rotate-6 animate-float [animation-delay:-2.4s] sm:block">
+              <Mascot kind="kitty" mood="shy" className="h-24 w-24" />
+            </div>
+            <div className="absolute bottom-3 right-0 hidden rotate-6 animate-float [animation-delay:-0.6s] sm:block">
+              <Mascot kind="duck" mood="happy" className="h-24 w-24" />
+            </div>
+            <div className="relative z-[5] -mr-6 mb-2 animate-float [animation-delay:-1s] sm:-mr-8">
+              <Mascot kind="bear" mood="shy" className="h-28 w-28 sm:h-36 sm:w-36" />
             </div>
             <div className="relative z-10 animate-float">
-              <Mascot kind="bunny" mood="love" className="h-36 w-36 sm:h-56 sm:w-56" />
+              <Mascot kind="bunny" mood="love" className="h-36 w-36 sm:h-48 sm:w-48" />
             </div>
-            <div className="relative -ml-6 mb-4 animate-float [animation-delay:-2s] sm:-ml-8">
-              <Mascot kind="lovebirds" mood="happy" className="h-28 w-28 sm:h-44 sm:w-44" />
+            <div className="relative z-[5] -ml-6 mb-4 animate-float [animation-delay:-2s] sm:-ml-8">
+              <Mascot kind="lovebirds" mood="happy" className="h-28 w-28 sm:h-36 sm:w-36" />
             </div>
           </div>
+        </section>
+
+        <section className="py-8" aria-labelledby="askers">
+          <div className="mb-6 text-center">
+            <h2 id="askers" className="font-display text-3xl font-semibold">
+              Pick who does the asking
+            </h2>
+            <p className="mt-2 text-muted-foreground">Five soft little go-betweens. Each one cries a bit if No gets hovered.</p>
+          </div>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+            {MASCOTS.map((m, i) => (
+              <li
+                key={m}
+                className="card-cute flex flex-col items-center p-4 text-center animate-in fade-in slide-in-from-bottom-3 fill-mode-both duration-700"
+                style={{ animationDelay: `${150 + i * 90}ms` }}
+              >
+                <Mascot kind={m} mood={i % 2 ? "happy" : "idle"} className="h-24 w-24" />
+                <span className="mt-1 font-display text-sm font-semibold leading-tight">{MASCOT_META[m].label}</span>
+                <span className="mt-1 text-[11px] leading-snug text-muted-foreground">{MASCOT_META[m].blurb}</span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="py-12" aria-labelledby="how">
@@ -139,8 +171,11 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="mx-auto w-full max-w-5xl px-5 pb-10 text-center text-sm text-muted-foreground">
-        Made with a lot of blushing. Be kind, be brave, bring flowers.
+      <footer className="mx-auto flex w-full max-w-5xl flex-col items-center gap-2 px-5 pb-10 text-center text-sm text-muted-foreground">
+        <p>Made with a lot of blushing. Be kind, be brave, bring flowers.</p>
+        <p>
+          Yesbird is free for everyone asking. <TipLink /> if it helped.
+        </p>
       </footer>
     </>
   );

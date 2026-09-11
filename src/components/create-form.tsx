@@ -24,6 +24,7 @@ const DRAFT_KEY = "yesbird:draft:v1";
 
 type Draft = {
   senderName: string;
+  senderEmail: string;
   recipientName: string;
   message: string;
   mascot: MascotKind;
@@ -33,6 +34,7 @@ type Draft = {
 
 const EMPTY: Draft = {
   senderName: "",
+  senderEmail: "",
   recipientName: "",
   message: "",
   mascot: "bunny",
@@ -201,11 +203,30 @@ export function CreateForm() {
               autoComplete="off"
             />
           </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="senderEmail">
+              Your email <span className="font-normal text-muted-foreground">(optional)</span>
+            </Label>
+            <TextInput
+              id="senderEmail"
+              name="senderEmail"
+              type="email"
+              inputMode="email"
+              value={draft.senderEmail}
+              onChange={(e) => update("senderEmail", e.target.value)}
+              placeholder="you@example.com"
+              maxLength={120}
+              autoComplete="email"
+            />
+            <p className="text-xs text-muted-foreground">
+              The moment they say yes, we email you the times and everything they shared. Never shown to them.
+            </p>
+          </div>
         </div>
       </Section>
 
       <Section step={2} title="Pick who does the asking" hint="They cry a little when No is hovered. Very cute about it.">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
           {MASCOTS.map((m) => {
             const on = draft.mascot === m;
             return (
@@ -215,15 +236,15 @@ export function CreateForm() {
                 aria-pressed={on}
                 onClick={() => update("mascot", m)}
                 className={cn(
-                  "flex flex-col items-center rounded-3xl border-2 p-4 text-center transition-all active:scale-[0.98]",
+                  "flex flex-col items-center rounded-3xl border-2 p-3 text-center transition-all duration-500 ease-out active:scale-[0.98]",
                   on
                     ? "border-primary bg-blush/40 shadow-[0_14px_30px_-16px_oklch(0.7_0.18_5)]"
                     : "border-transparent bg-white/60 hover:bg-blush/30",
                 )}
               >
-                <Mascot kind={m} mood={on ? "love" : "idle"} className="h-28 w-28" />
-                <span className="mt-1 font-display font-semibold">{MASCOT_META[m].label}</span>
-                <span className="text-xs text-muted-foreground">{MASCOT_META[m].blurb}</span>
+                <Mascot kind={m} mood={on ? "love" : "idle"} className="h-24 w-24 sm:h-[6.5rem] sm:w-[6.5rem]" />
+                <span className="mt-1 font-display text-sm font-semibold leading-tight">{MASCOT_META[m].label}</span>
+                <span className="mt-1 text-[11px] leading-snug text-muted-foreground">{MASCOT_META[m].blurb}</span>
               </button>
             );
           })}

@@ -149,10 +149,100 @@ function Bear({ mood }: { mood: Mood }) {
   );
 }
 
+function Kitty({ mood }: { mood: Mood }) {
+  const CREAM = "#fff4e8";
+  const LINE = "#ead0bb";
+  const earDroop = isDown(mood) ? 14 : mood === "happy" ? -4 : 0;
+  return (
+    <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
+      {mood === "cry" && <RainCloud x={156} y={34} />}
+      <g transform={`rotate(${-6 + earDroop} 58 70)`}>
+        <path d="M 40 96 L 50 40 L 92 76 Z" fill={CREAM} stroke={LINE} strokeWidth="3" strokeLinejoin="round" />
+        <path d="M 52 84 L 56 56 L 78 74 Z" fill="#ffc7d6" />
+      </g>
+      <g transform={`rotate(${6 - earDroop} 142 70)`}>
+        <path d="M 160 96 L 150 40 L 108 76 Z" fill={CREAM} stroke={LINE} strokeWidth="3" strokeLinejoin="round" />
+        <path d="M 148 84 L 144 56 L 122 74 Z" fill="#ffc7d6" />
+      </g>
+      <ellipse cx="100" cy="122" rx="66" ry="56" fill={CREAM} stroke={LINE} strokeWidth="3" />
+      <g stroke="#f2b27a" strokeWidth="3.5" strokeLinecap="round">
+        <path d="M 92 74 v 14" />
+        <path d="M 100 70 v 18" />
+        <path d="M 108 74 v 14" />
+      </g>
+      <g stroke="#d9b39a" strokeWidth="2.2" strokeLinecap="round">
+        <path d="M 24 126 h 26" />
+        <path d="M 26 138 l 25 -5" />
+        <path d="M 176 126 h -26" />
+        <path d="M 174 138 l -25 -5" />
+      </g>
+      <Blush x={100} y={136} mood={mood} spread={40} />
+      <Eye x={76} y={118} mood={mood} side="left" />
+      <Eye x={124} y={118} mood={mood} side="right" />
+      <path d="M 95 133 h 10 l -5 5 z" fill="#ff8fab" />
+      <Mouth x={100} y={141} mood={mood} />
+      <ellipse cx="72" cy="178" rx="15" ry="10" fill={CREAM} stroke={LINE} strokeWidth="3" />
+      <ellipse cx="128" cy="178" rx="15" ry="10" fill={CREAM} stroke={LINE} strokeWidth="3" />
+      {isDown(mood) ? (
+        <Heart x={100} y={180} size={1.2} color="#d9a3b3" broken />
+      ) : (
+        <Heart x={100} y={178} size={mood === "idle" || mood === "shy" ? 1.3 : 1.6} />
+      )}
+    </svg>
+  );
+}
+
+function Duck({ mood }: { mood: Mood }) {
+  const YELLOW = "#ffe28f";
+  const LINE = "#ecc45e";
+  const beakTilt = isDown(mood) ? 5 : 0;
+  return (
+    <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden>
+      {mood === "cry" && <RainCloud x={44} y={34} />}
+      <ellipse cx="100" cy="168" rx="62" ry="40" fill={YELLOW} stroke={LINE} strokeWidth="3" />
+      <ellipse cx="46" cy="160" rx="18" ry="11" transform={`rotate(${-25 - (isDown(mood) ? 12 : 0)} 46 160)`} fill="#ffd66b" stroke={LINE} strokeWidth="3" />
+      <ellipse cx="154" cy="160" rx="18" ry="11" transform={`rotate(${25 + (isDown(mood) ? 12 : 0)} 154 160)`} fill="#ffd66b" stroke={LINE} strokeWidth="3" />
+      <circle cx="100" cy="104" r="54" fill={YELLOW} stroke={LINE} strokeWidth="3" />
+      <g stroke={LINE} strokeWidth="3.5" strokeLinecap="round" fill="none">
+        <path d="M 96 52 q -2 -12 -10 -14" />
+        <path d="M 100 50 q 0 -12 4 -16" />
+        <path d="M 105 52 q 4 -10 12 -10" />
+      </g>
+      <g transform="translate(136 62)">
+        {[
+          [7, 0],
+          [2.2, 6.7],
+          [-5.7, 4.1],
+          [-5.7, -4.1],
+          [2.2, -6.7],
+        ].map(([cx, cy]) => (
+          <circle key={`${cx},${cy}`} cx={cx} cy={cy} r="5.5" fill="#ffb3c7" />
+        ))}
+        <circle r="3.5" fill="#fff3c4" />
+      </g>
+      <Blush x={100} y={118} mood={mood} spread={34} />
+      <Eye x={80} y={100} mood={mood} side="left" r={5} />
+      <Eye x={120} y={100} mood={mood} side="right" r={5} />
+      <g transform={`rotate(${beakTilt} 100 124)`}>
+        <path d="M 82 118 q 18 -10 36 0 q -18 16 -36 0 z" fill="#ffab5c" stroke="#e78f3c" strokeWidth="2.5" />
+        {(mood === "happy" || mood === "love") && <path d="M 86 122 q 14 12 28 0 q -14 4 -28 0 z" fill="#c95b4a" />}
+        {mood === "cry" && <path d="M 90 126 q 5 -3 10 0 q 5 3 10 0" stroke="#c95b4a" strokeWidth="2" fill="none" strokeLinecap="round" />}
+      </g>
+      {isDown(mood) ? (
+        <Heart x={100} y={172} size={1.2} color="#d9a3b3" broken />
+      ) : (
+        <Heart x={100} y={172} size={mood === "idle" || mood === "shy" ? 1.3 : 1.7} />
+      )}
+    </svg>
+  );
+}
+
 const ART: Record<MascotKind, (p: { mood: Mood }) => React.ReactElement> = {
   bunny: Bunny,
   lovebirds: Lovebirds,
   bear: Bear,
+  kitty: Kitty,
+  duck: Duck,
 };
 
 const MOTION: Record<Mood, { animate: TargetAndTransition; transition: Transition }> = {

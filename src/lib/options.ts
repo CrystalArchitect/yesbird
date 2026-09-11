@@ -1,4 +1,4 @@
-export const MASCOTS = ["bunny", "lovebirds", "bear"] as const;
+export const MASCOTS = ["bunny", "bear", "kitty", "duck", "lovebirds"] as const;
 export type Mascot = (typeof MASCOTS)[number];
 
 export const MASCOT_META: Record<
@@ -10,15 +10,25 @@ export const MASCOT_META: Record<
     blurb: "Shy, blushes a lot, wiggles ears when happy.",
     emoji: "🐰",
   },
-  lovebirds: {
-    label: "The lovebirds",
-    blurb: "Two little birds who only sing duets.",
-    emoji: "🐦",
-  },
   bear: {
     label: "Boba the bear",
     blurb: "Soft, sleepy, carries a heart everywhere.",
     emoji: "🐻",
+  },
+  kitty: {
+    label: "Dumpling the kitty",
+    blurb: "Pretends not to care. Cares enormously.",
+    emoji: "🐱",
+  },
+  duck: {
+    label: "Peach the duckling",
+    blurb: "Waddles in with a flower. Every single time.",
+    emoji: "🐥",
+  },
+  lovebirds: {
+    label: "The lovebirds",
+    blurb: "Two little birds who only sing duets.",
+    emoji: "🐦",
   },
 };
 
