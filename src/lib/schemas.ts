@@ -18,6 +18,9 @@ export type Slot = z.infer<typeof slotSchema>;
 
 export const createInviteSchema = z.object({
   senderName: z.string().trim().min(1, "Tell them who's asking").max(40),
+  senderEmail: z
+    .union([z.literal(""), z.string().trim().max(120).email("Your email looks a little off")])
+    .default(""),
   recipientName: z.string().trim().min(1, "Who is this for?").max(40),
   message: z.string().trim().max(400).default(""),
   mascot: z.enum(MASCOTS),
@@ -54,18 +57,22 @@ export type InviteResponse = ResponseInput & { respondedAt: string };
 
 export type Invite = CreateInviteInput & {
   id: string;
+  /** The asker's private key. Only ever leaves the server inside the asker's own email. */
+  manageKey?: string;
   createdAt: string;
   response?: InviteResponse;
 };
 
-/** What the person being asked is allowed to see. */
-export type PublicInvite = Omit<Invite, "response"> & {
+/** What the person being asked is allowed to see: never the answer, never the asker's email or key. */
+export type PublicInvite = Omit<Invite, "response" | "senderEmail" | "manageKey"> & {
   answered: boolean;
   chosenSlots?: Slot[];
 };
 
 export function toPublicInvite(invite: Invite): PublicInvite {
-  const { response, ...rest } = invite;
+  const { response, senderEmail: _e, manageKey: _k, ...rest } = invite;
+  void _e;
+  void _k;
   return {
     ...rest,
     answered: Boolean(response),

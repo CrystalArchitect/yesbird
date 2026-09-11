@@ -172,7 +172,15 @@ export function NestView({ initial, manageKey, fresh }: { initial: Invite; manag
             <Mascot kind={invite.mascot} mood="shy" className="h-36 w-36" />
             <h2 className="font-display text-2xl font-semibold">Waiting for {invite.recipientName}…</h2>
             <p className="max-w-sm text-muted-foreground">
-              This page refreshes itself. The moment they say yes, everything they shared shows up right here.
+              This page refreshes itself. The moment they say yes, everything they shared shows up right here
+              {invite.senderEmail ? (
+                <>
+                  {" "}
+                  and lands in your inbox at <span className="font-semibold text-foreground">{invite.senderEmail}</span>.
+                </>
+              ) : (
+                "."
+              )}
             </p>
             <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-primary">
               <span className="size-2 animate-ping rounded-full bg-primary" /> Listening for a yes
