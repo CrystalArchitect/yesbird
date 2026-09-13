@@ -1,0 +1,64 @@
+name: Linting Standard Enforcement (ADM-001)
+
+on:
+  push:
+    branches:
+      - main
+      - claude/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Pre-commit Linting Gate
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25'
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit hooks
+        run: |
+          # Run all hooks against all files if first run, or changed files
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            pre-commit run --from-ref ${{ github.event.pull_request.base.sha }} --to-ref ${{ github.event.pull_request.head.sha }}
+          else
+            pre-commit run --all-files
+          fi
+
+  status:
+    runs-on: ubuntu-latest
+    name: Linting Status Check
+    needs: lint
+    if: always()
+
+    steps:
+      - name: Report Status
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ]; then
+            echo "❌ Linting check failed - review violations above"
+            exit 1
+          else
+            echo "✅ All linting checks passed (ADM-001 compliant)"
+          fi
