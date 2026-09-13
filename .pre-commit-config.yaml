@@ -8,15 +8,15 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  # JavaScript/TypeScript linting
+  # JavaScript/TypeScript linting (ESLint v9+ flat config)
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.50.0
+    rev: v9.0.0
     hooks:
       - id: eslint
         types: [javascript, typescript]
         additional_dependencies:
-          - eslint
-          - eslint-config-prettier
+          - eslint@>=9.0.0
+          - '@eslint/js'
         args: [--fix]
 
   # YAML linting
