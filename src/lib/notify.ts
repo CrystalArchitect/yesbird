@@ -2,6 +2,8 @@ import "server-only";
 import { formatDayLong } from "@/lib/dates";
 import { CONTACT_METHODS, MASCOT_META, TIME_BY_ID, VIBES } from "@/lib/options";
 import type { Invite, InviteResponse } from "@/lib/schemas";
+import type { Campaign, CampaignRecipient } from "@/lib/campaign-schemas";
+import type { Pitch, Outlet } from "@/lib/pitch-schemas";
 
 /**
  * Tells the asker that their person said yes.
@@ -232,3 +234,119 @@ async function sendToWebhook(url: string, p: NotificationPayload) {
   });
   if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
 }
+
+/**
+ * Send a campaign to multiple recipients.
+ * Tracks each send independently; failures don't break the batch.
+ * Returns results: { sent: count, failed: count, errors: string[] }
+ */
+export async function sendCampaign(campaign: Campaign, baseUrl: string): Promise<CampaignSendResult> {
+  const results: CampaignSendResult = {
+    sent: 0,
+    failed: 0,
+    errors: [],
+  };
+
+  for (const recipient of campaign.recipientList.recipients) {
+    try {
+      const payload = buildCampaignPayload(campaign, recipient, baseUrl);
+
+      if (process.env.RESEND_API_KEY) {
+        await sendWithResend(recipient.email, payload);
+        results.sent++;
+      } else if (process.env.NOTIFY_WEBHOOK_URL) {
+        await sendToWebhook(process.env.NOTIFY_WEBHOOK_URL, payload);
+        results.sent++;
+      } else {
+        console.info(`[campaign] ${campaign.name} → ${recipient.email}\n${payload.text}`);
+        results.sent++;
+      }
+    } catch (err) {
+      results.failed++;
+      results.errors.push(`${recipient.email}: ${err instanceof Error ? err.message : String(err)}`);
+      console.error(`[campaign] failed to send to ${recipient.email}`, err);
+    }
+  }
+
+  return results;
+}
+
+export type CampaignSendResult = {
+  sent: number;
+  failed: number;
+  errors: string[];
+};
+
+function buildCampaignPayload(campaign: Campaign, recipient: CampaignRecipient, baseUrl: string): CampaignNotificationPayload {
+  const unsubscribeLink = campaign.tracking.linkTracking ? `${baseUrl}/unsubscribe?campaign=${campaign.id}&email=${encodeURIComponent(recipient.email)}` : null;
+
+  return {
+    event: "campaign.sent",
+    campaignId: campaign.id,
+    campaignName: campaign.name,
+    toEmail: recipient.email,
+    toName: recipient.name,
+    subject: campaign.subject,
+    text: campaign.textBody + (unsubscribeLink ? `\n\nUnsubscribe: ${unsubscribeLink}` : ""),
+    html: campaign.htmlBody,
+  };
+}
+
+export type CampaignNotificationPayload = {
+  event: "campaign.sent";
+  campaignId: string;
+  campaignName: string;
+  toEmail: string;
+  toName: string;
+  subject: string;
+  text: string;
+  html: string;
+};
+
+/**
+ * Send a news pitch to an outlet contact.
+ * Never throws; failures are logged but don't break the workflow.
+ */
+export async function sendPitch(pitch: Pitch, outlet: Outlet, baseUrl: string): Promise<void> {
+  try {
+    const payload = buildPitchPayload(pitch, outlet, baseUrl);
+
+    if (process.env.RESEND_API_KEY) {
+      await sendWithResend(pitch.contactEmail, payload);
+    } else if (process.env.NOTIFY_WEBHOOK_URL) {
+      await sendToWebhook(process.env.NOTIFY_WEBHOOK_URL, payload);
+    } else {
+      console.info(`[pitch] ${pitch.subject} → ${pitch.contactEmail}\n${payload.text}`);
+    }
+  } catch (err) {
+    console.error(`[pitch] failed to send pitch ${pitch.id}`, err);
+  }
+}
+
+function buildPitchPayload(pitch: Pitch, outlet: Outlet, baseUrl: string): PitchNotificationPayload {
+  const trackingLink = `${baseUrl}/pitches/${pitch.id}/track`;
+
+  return {
+    event: "pitch.sent",
+    pitchId: pitch.id,
+    outletId: outlet.id,
+    outletName: outlet.name,
+    toEmail: pitch.contactEmail,
+    toName: pitch.contactName,
+    subject: pitch.subject,
+    text: pitch.body + `\n\nTracking: ${trackingLink}`,
+    html: `<p>${pitch.body.replace(/\n/g, "<br>")}</p><p><a href="${trackingLink}">View Response</a></p>`,
+  };
+}
+
+export type PitchNotificationPayload = {
+  event: "pitch.sent";
+  pitchId: string;
+  outletId: string;
+  outletName: string;
+  toEmail: string;
+  toName: string;
+  subject: string;
+  text: string;
+  html: string;
+};
