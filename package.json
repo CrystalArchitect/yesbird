@@ -6,7 +6,8 @@
     "dev": "next dev -p 4682",
     "build": "next build",
     "start": "next start -p 4682",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "tsx scripts/seed-outlets.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -32,6 +33,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "tsx": "^4",
     "typescript": "^5"
   }
 }

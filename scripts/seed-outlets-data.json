@@ -1,0 +1,212 @@
+[
+  {
+    "name": "The Verge",
+    "website": "https://theverge.com",
+    "categories": ["Tech", "Science"],
+    "contacts": [
+      {
+        "name": "David Pierce",
+        "email": "david.pierce@theverge.com",
+        "role": "Editor-in-Chief"
+      },
+      {
+        "name": "Jay Peters",
+        "email": "jay.peters@theverge.com",
+        "role": "Senior Reporter"
+      },
+      {
+        "name": "Allison Johnson",
+        "email": "allison.johnson@theverge.com",
+        "role": "Tech Correspondent"
+      }
+    ]
+  },
+  {
+    "name": "TechCrunch",
+    "website": "https://techcrunch.com",
+    "categories": ["Tech", "Business"],
+    "contacts": [
+      {
+        "name": "Connie Loizos",
+        "email": "connie@techcrunch.com",
+        "role": "Senior Editor"
+      },
+      {
+        "name": "Frederic Lardinois",
+        "email": "frederic@techcrunch.com",
+        "role": "Contributing Writer"
+      },
+      {
+        "name": "Kyle Wiggers",
+        "email": "kyle@techcrunch.com",
+        "role": "Tech Reporter"
+      }
+    ]
+  },
+  {
+    "name": "Australian Financial Review",
+    "website": "https://afr.com",
+    "categories": ["Business", "Tech"],
+    "contacts": [
+      {
+        "name": "Michael Neville",
+        "email": "michael.neville@afr.com",
+        "role": "Technology Editor"
+      },
+      {
+        "name": "Sarah Danckert",
+        "email": "sarah.danckert@afr.com",
+        "role": "Tech & Media Reporter"
+      },
+      {
+        "name": "James Mitchell",
+        "email": "james.mitchell@afr.com",
+        "role": "Business Correspondent"
+      }
+    ]
+  },
+  {
+    "name": "SBS News",
+    "website": "https://sbs.com.au/news",
+    "categories": ["General", "Business"],
+    "contacts": [
+      {
+        "name": "Mandi Wicks",
+        "email": "mandi.wicks@sbs.com.au",
+        "role": "News Editor"
+      },
+      {
+        "name": "John Devine",
+        "email": "john.devine@sbs.com.au",
+        "role": "Technology Correspondent"
+      }
+    ]
+  },
+  {
+    "name": "ABC News",
+    "website": "https://abc.net.au/news",
+    "categories": ["General", "Business"],
+    "contacts": [
+      {
+        "name": "Emma Alberici",
+        "email": "emma.alberici@abc.net.au",
+        "role": "Technology Reporter"
+      },
+      {
+        "name": "James Purtill",
+        "email": "james.purtill@abc.net.au",
+        "role": "Science & Technology Correspondent"
+      }
+    ]
+  },
+  {
+    "name": "iTnews",
+    "website": "https://itnews.com.au",
+    "categories": ["Tech", "Business"],
+    "contacts": [
+      {
+        "name": "Gus Gordon",
+        "email": "gus.gordon@itnews.com.au",
+        "role": "Chief Editor"
+      },
+      {
+        "name": "Chris Duckett",
+        "email": "chris.duckett@itnews.com.au",
+        "role": "Technology Editor"
+      },
+      {
+        "name": "Natalie Gasson",
+        "email": "natalie.gasson@itnews.com.au",
+        "role": "Senior Reporter"
+      }
+    ]
+  },
+  {
+    "name": "ZDNet",
+    "website": "https://zdnet.com",
+    "categories": ["Tech", "Business"],
+    "contacts": [
+      {
+        "name": "Steve Ranger",
+        "email": "steve.ranger@zdnet.com",
+        "role": "Editor-in-Chief"
+      },
+      {
+        "name": "Danny Palmer",
+        "email": "danny.palmer@zdnet.com",
+        "role": "Senior Reporter"
+      },
+      {
+        "name": "Stephanie Condon",
+        "email": "stephanie.condon@zdnet.com",
+        "role": "Editor"
+      }
+    ]
+  },
+  {
+    "name": "Wired",
+    "website": "https://wired.com",
+    "categories": ["Tech", "Science", "General"],
+    "contacts": [
+      {
+        "name": "Nicholas Thompson",
+        "email": "nthompson@wired.com",
+        "role": "Editor-in-Chief"
+      },
+      {
+        "name": "Gregory Barber",
+        "email": "gbarber@wired.com",
+        "role": "Staff Writer"
+      },
+      {
+        "name": "Sophia Smith Galer",
+        "email": "sgaler@wired.com",
+        "role": "Reporter"
+      }
+    ]
+  },
+  {
+    "name": "Ars Technica",
+    "website": "https://arstechnica.com",
+    "categories": ["Tech", "Science"],
+    "contacts": [
+      {
+        "name": "Lee Hutchinson",
+        "email": "lee@arstechnica.com",
+        "role": "Senior Tech Reporter"
+      },
+      {
+        "name": "Sam Machkovech",
+        "email": "sam@arstechnica.com",
+        "role": "Technology Reporter"
+      },
+      {
+        "name": "Anita Balakrishnan",
+        "email": "anita@arstechnica.com",
+        "role": "Reporter"
+      }
+    ]
+  },
+  {
+    "name": "CNBC",
+    "website": "https://cnbc.com",
+    "categories": ["Business", "Tech"],
+    "contacts": [
+      {
+        "name": "Arjun Kharpal",
+        "email": "arjun.kharpal@cnbc.com",
+        "role": "Technology Correspondent"
+      },
+      {
+        "name": "Emily Tsang",
+        "email": "emily.tsang@cnbc.com",
+        "role": "Technology Reporter"
+      },
+      {
+        "name": "Kif Leswing",
+        "email": "kif.leswing@cnbc.com",
+        "role": "Senior Technology Reporter"
+      }
+    ]
+  }
+]
