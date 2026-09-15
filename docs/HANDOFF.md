@@ -263,3 +263,67 @@ form), `/nest/<key>` (bottom), and the landing footer. The URL is `NEXT_PUBLIC_T
 | `YESBIRD_DATA_DIR` | no | File-store directory (default `./data/invites`) |
 | `NEXT_PUBLIC_APP_URL` | recommended | Absolute URL used in email links |
 | `NEXT_PUBLIC_TIP_URL` | no | Donation link (default Buy Me a Coffee) |
+
+---
+
+## 9. News/Media Emailing System (Phases 1-5)
+
+In addition to the invitation feature above, Yesbird includes a **multi-phase news and media emailing system** for managing journalistic outreach campaigns. This is separate from the invitation product.
+
+### Overview (5 Phases)
+
+| Phase | Name | Status | Purpose |
+| --- | --- | --- | --- |
+| 1 | UI Development | ✅ Complete | Campaign builder, pitch creation, outlet management UI |
+| 2 | Outlet Database Seeding | ✅ Complete | Pre-seeded outlet database with major media outlets and contacts |
+| 3 | Email Sending | In Planning | SMTP integration for sending pitches to journalist contacts |
+| 4 | Response Tracking | ✅ Complete | Gmail API integration for automatic response detection and categorization |
+| 5 | Analytics Dashboard | ✅ Complete | Real-time metrics visualization for pitch response rates and engagement |
+
+### Routes and Features
+
+**Admin Pages** (News/Media System)
+- `/campaigns` — Create and manage pitch campaigns
+- `/pitches` — View and send pitches to outlets
+- `/outlets` — Manage media outlet directory and contacts
+- `/analytics` — View response rates, engagement metrics, and trends
+
+**APIs**
+- `POST /api/campaigns` — Create campaign
+- `POST /api/pitches` — Create and send pitches
+- `GET /api/responses/sync` — Manual response sync from Gmail
+- `POST /api/responses/sync` — Trigger response sync
+- `GET /api/responses/analytics` — Fetch aggregated analytics
+
+### Configuration for Gmail API Integration (Phase 4)
+
+To enable automatic response tracking, configure one of:
+
+1. **API Key** (read-only, simpler setup)
+   ```
+   GMAIL_API_KEY=<your-api-key>
+   ```
+
+2. **OAuth Access Token** (requires more setup)
+   ```
+   GMAIL_ACCESS_TOKEN=<your-oauth-token>
+   ```
+
+See `docs/RESPONSE_TRACKING.md` for detailed setup instructions.
+
+### Documentation
+
+- `docs/CAMPAIGNS.md` — Campaign creation and management (Phase 1)
+- `docs/OUTLETS.md` — Outlet database guide (Phase 2)
+- `docs/RESPONSE_TRACKING.md` — Gmail API setup and response sync (Phase 4)
+- `docs/ANALYTICS.md` — Dashboard guide and metrics (Phase 5)
+
+### Architecture
+
+All phases follow the same data model:
+- **Zod schemas** for type validation (`src/lib/*-schemas.ts`)
+- **Dual backend abstraction** supporting JSON files (local) and Upstash Redis (production)
+- **Error handling** with informative logging and user feedback
+- **Animations** using Framer Motion with consistent transitions
+
+---
