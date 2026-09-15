@@ -4,14 +4,16 @@ import { CONTACT_METHODS, MASCOT_META, TIME_BY_ID, VIBES } from "@/lib/options";
 import type { Invite, InviteResponse } from "@/lib/schemas";
 import type { Campaign, CampaignRecipient } from "@/lib/campaign-schemas";
 import type { Pitch, Outlet } from "@/lib/pitch-schemas";
+import { getSMTPConfigFromEnv, getCachedTransporter } from "@/lib/smtp-config";
 
 /**
  * Tells the asker that their person said yes.
  *
  * Delivery is picked from the environment, first match wins:
  *   1. RESEND_API_KEY        → email via Resend (https://resend.com), from EMAIL_FROM
- *   2. NOTIFY_WEBHOOK_URL    → POST the JSON payload below (Zapier, Make, n8n, your own endpoint…)
- *   3. nothing configured    → logged to the server console so local dev still shows the message
+ *   2. SMTP_HOST + SMTP_USER + SMTP_PASSWORD → SMTP relay
+ *   3. NOTIFY_WEBHOOK_URL    → POST the JSON payload below (Zapier, Make, n8n, your own endpoint…)
+ *   4. nothing configured    → logged to the server console so local dev still shows the message
  *
  * Never throws: a failed notification must not break the recipient's "It's a date" moment.
  * See docs/HANDOFF.md for wiring instructions.
@@ -26,6 +28,13 @@ export async function notifyAskerOfYes(invite: Invite, baseUrl: string): Promise
     if (process.env.RESEND_API_KEY && invite.senderEmail) {
       await sendWithResend(invite.senderEmail, payload);
       return;
+    }
+    if (invite.senderEmail) {
+      const smtpConfig = getSMTPConfigFromEnv();
+      if (smtpConfig) {
+        await sendWithSMTP(invite.senderEmail, payload, smtpConfig);
+        return;
+      }
     }
     if (process.env.NOTIFY_WEBHOOK_URL) {
       await sendToWebhook(process.env.NOTIFY_WEBHOOK_URL, payload);
@@ -225,6 +234,27 @@ async function sendWithResend(to: string, p: NotificationPayload) {
   if (!res.ok) throw new Error(`Resend responded ${res.status}: ${await res.text()}`);
 }
 
+async function sendWithSMTP(to: string, p: NotificationPayload, smtpConfig: ReturnType<typeof getSMTPConfigFromEnv>) {
+  if (!smtpConfig) {
+    throw new Error("SMTP configuration is invalid or missing");
+  }
+
+  const transporter = getCachedTransporter(smtpConfig);
+  const from = `${smtpConfig.fromName} <${smtpConfig.user}>`;
+
+  const info = await transporter.sendMail({
+    from,
+    to,
+    subject: p.subject,
+    text: p.text,
+    html: p.html,
+  });
+
+  if (!info.response) {
+    throw new Error("SMTP send failed: no response from server");
+  }
+}
+
 async function sendToWebhook(url: string, p: NotificationPayload) {
   const res = await fetch(url, {
     method: "POST",
@@ -247,12 +277,17 @@ export async function sendCampaign(campaign: Campaign, baseUrl: string): Promise
     errors: [],
   };
 
+  const smtpConfig = getSMTPConfigFromEnv();
+
   for (const recipient of campaign.recipientList.recipients) {
     try {
       const payload = buildCampaignPayload(campaign, recipient, baseUrl);
 
       if (process.env.RESEND_API_KEY) {
         await sendWithResend(recipient.email, payload);
+        results.sent++;
+      } else if (smtpConfig) {
+        await sendWithSMTP(recipient.email, payload, smtpConfig);
         results.sent++;
       } else if (process.env.NOTIFY_WEBHOOK_URL) {
         await sendToWebhook(process.env.NOTIFY_WEBHOOK_URL, payload);
@@ -310,9 +345,12 @@ export type CampaignNotificationPayload = {
 export async function sendPitch(pitch: Pitch, outlet: Outlet, baseUrl: string): Promise<void> {
   try {
     const payload = buildPitchPayload(pitch, outlet, baseUrl);
+    const smtpConfig = getSMTPConfigFromEnv();
 
     if (process.env.RESEND_API_KEY) {
       await sendWithResend(pitch.contactEmail, payload);
+    } else if (smtpConfig) {
+      await sendWithSMTP(pitch.contactEmail, payload, smtpConfig);
     } else if (process.env.NOTIFY_WEBHOOK_URL) {
       await sendToWebhook(process.env.NOTIFY_WEBHOOK_URL, payload);
     } else {
