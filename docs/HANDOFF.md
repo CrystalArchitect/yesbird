@@ -276,7 +276,7 @@ In addition to the invitation feature above, Yesbird includes a **multi-phase ne
 | --- | --- | --- | --- |
 | 1 | UI Development | ✅ Complete | Campaign builder, pitch creation, outlet management UI |
 | 2 | Outlet Database Seeding | ✅ Complete | Pre-seeded outlet database with major media outlets and contacts |
-| 3 | Email Sending | In Planning | SMTP integration for sending pitches to journalist contacts |
+| 3 | Email Sending | ✅ Complete | Resend REST API + SMTP relay for sending pitches to journalist contacts |
 | 4 | Response Tracking | ✅ Complete | Gmail API integration for automatic response detection and categorization |
 | 5 | Analytics Dashboard | ✅ Complete | Real-time metrics visualization for pitch response rates and engagement |
 
@@ -315,6 +315,7 @@ See `docs/RESPONSE_TRACKING.md` for detailed setup instructions.
 
 - `docs/CAMPAIGNS.md` — Campaign creation and management (Phase 1)
 - `docs/OUTLETS.md` — Outlet database guide (Phase 2)
+- `docs/PHASE_3.md` — Email sending configuration: Resend, SMTP, webhooks (Phase 3)
 - `docs/RESPONSE_TRACKING.md` — Gmail API setup and response sync (Phase 4)
 - `docs/ANALYTICS.md` — Dashboard guide and metrics (Phase 5)
 
