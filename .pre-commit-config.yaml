@@ -1,0 +1,35 @@
+# Pre-commit hooks for enforcing linting standard (ADM-001)
+repos:
+  # Python linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # JavaScript/TypeScript linting (ESLint v9+ flat config)
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.0.0
+    hooks:
+      - id: eslint
+        types: [javascript, typescript]
+        additional_dependencies:
+          - eslint@>=9.0.0
+          - '@eslint/js'
+        args: [--fix]
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint
+
+  # General formatting
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
